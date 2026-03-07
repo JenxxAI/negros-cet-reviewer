@@ -5,7 +5,17 @@ import { supabase } from '../../../lib/supabase'
 import {
   IconClock, IconAlertTriangle, IconAward, IconBookOpen, IconCheck, IconX,
   IconClipboard, IconSquare, IconLightbulb, IconRefresh, IconTrendingUp, IconFlag,
+  IconEye, IconEyeOff,
 } from '../../../components/Icons'
+
+function shuffleArray(arr) {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
 
 // ─── Supabase question fetcher ─────────────────────────────────────────────
 async function fetchQuestionsFromDB(school, subject, difficulty, count) {
@@ -143,6 +153,7 @@ function ExamRoom() {
   const subject = searchParams.get('subject') || 'math'
   const difficulty = searchParams.get('difficulty') || 'mixed'
   const count = parseInt(searchParams.get('count') || '10')
+  const mode = searchParams.get('mode') || 'practice'
 
   const [questions, setQuestions] = useState([])
   const [loading, setLoading] = useState(true)
@@ -153,6 +164,7 @@ function ExamRoom() {
   const [timeLeft, setTimeLeft] = useState(count * 60)
   const [finished, setFinished] = useState(false)
   const [flagged, setFlagged] = useState({})
+  const [flaggedOnly, setFlaggedOnly] = useState(false)
 
   // Load questions: try Supabase first, fall back to sample questions
   useEffect(() => {
@@ -166,7 +178,7 @@ function ExamRoom() {
             return raw.slice(0, Math.min(count, raw.length))
           })()
       if (finalQuestions.length === 0) { setError(true); setLoading(false); return }
-      setQuestions(finalQuestions)
+      setQuestions(shuffleArray(finalQuestions))
       setTimeLeft(finalQuestions.length * 60)
       setLoading(false)
     }
@@ -210,6 +222,36 @@ function ExamRoom() {
     return () => clearInterval(timer)
   }, [loading, finished])
 
+  // Keyboard shortcuts: A/B/C/D = select answer, Space = next, F = flag
+  useEffect(() => {
+    if (loading || finished) return
+    const onKey = (e) => {
+      if (['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return
+      const k = e.key.toLowerCase()
+      const choiceMap = { a: 0, b: 1, c: 2, d: 3 }
+      if (k in choiceMap) {
+        if (mode === 'practice' && showAnswer) return
+        setAnswers(prev => ({ ...prev, [current]: choiceMap[k] }))
+        if (mode === 'practice') setShowAnswer(true)
+        return
+      }
+      if (k === 'f') {
+        setFlagged(prev => ({ ...prev, [current]: !prev[current] }))
+        return
+      }
+      if (k === ' ' && document.activeElement === document.body) {
+        e.preventDefault()
+        const canAdvance = mode === 'exam' || showAnswer
+        if (canAdvance) {
+          if (current + 1 >= questions.length) setFinished(true)
+          else { setCurrent(c => c + 1); setShowAnswer(false) }
+        }
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [loading, finished, showAnswer, current, mode, answers, questions.length]) // eslint-disable-line react-hooks/exhaustive-deps
+
   const formatTime = (s) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`
 
   if (loading) {
@@ -237,9 +279,9 @@ function ExamRoom() {
   }
 
   const handleAnswer = (i) => {
-    if (showAnswer) return
+    if (mode === 'practice' && showAnswer) return
     setAnswers(a => ({ ...a, [current]: i }))
-    setShowAnswer(true)
+    if (mode === 'practice') setShowAnswer(true)
   }
 
   const handleNext = () => {
@@ -281,38 +323,57 @@ function ExamRoom() {
 
         {/* Answer review */}
         <div style={{ marginBottom: 24 }}>
-          <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <IconClipboard size={16} /> Answer Review
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+            <div style={{ fontSize: 16, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <IconClipboard size={16} /> Answer Review
+            </div>
+            {Object.values(flagged).some(Boolean) && (
+              <button onClick={() => setFlaggedOnly(f => !f)}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, padding: '5px 10px', borderRadius: 6, border: `1px solid ${flaggedOnly ? 'var(--gold)' : 'var(--border)'}`, background: flaggedOnly ? 'rgba(201,168,76,0.1)' : 'var(--card)', color: flaggedOnly ? 'var(--gold)' : 'var(--muted)', cursor: 'pointer' }}>
+                {flaggedOnly
+                  ? <><IconEye size={12} /> Show All</>
+                  : <><IconFlag size={12} /> Flagged Only ({Object.values(flagged).filter(Boolean).length})</>}
+              </button>
+            )}
           </div>
-          {questions.map((q, i) => {
-            const userAnswer = answers[i]
-            const isCorrect = userAnswer === q.answer
-            const answered = userAnswer !== undefined
-            return (
-              <div key={i} className="card" style={{ marginBottom: 12, borderColor: !answered ? 'var(--border)' : isCorrect ? '#3fb950' : '#f85149' }}>
-                <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 10 }}>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', marginTop: 2 }}>
-                    {!answered ? <IconSquare size={18} color="var(--muted)" /> : isCorrect ? <IconCheck size={18} color="#3fb950" /> : <IconX size={18} color="#f85149" />}
-                  </span>
-                  <div style={{ fontWeight: 600, fontSize: 14 }}>Q{i + 1}. {q.question}</div>
-                </div>
-                {!answered && <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 8 }}>Not answered</div>}
-                {answered && !isCorrect && (
-                  <div style={{ fontSize: 12, color: '#f85149', marginBottom: 4 }}>Your answer: {q.choices[userAnswer]}</div>
-                )}
-                <div style={{ fontSize: 12, color: '#3fb950', marginBottom: 8 }}>Correct: {q.choices[q.answer]}</div>
-                <div style={{ fontSize: 12, color: 'var(--muted)', background: 'var(--card2)', padding: '8px 12px', borderRadius: 6, display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+          {flaggedOnly && !Object.values(flagged).some(Boolean) && (
+            <div style={{ color: 'var(--muted)', fontSize: 13, padding: '16px', textAlign: 'center' }}>No flagged questions.</div>
+          )}
+          {questions
+            .map((q, i) => ({ q, i }))
+            .filter(({ i }) => !flaggedOnly || flagged[i])
+            .map(({ q, i }) => {
+              const userAnswer = answers[i]
+              const isCorrect = userAnswer === q.answer
+              const answered = userAnswer !== undefined
+              return (
+                <div key={i} className="card" style={{ marginBottom: 12, borderColor: !answered ? 'var(--border)' : isCorrect ? '#3fb950' : '#f85149' }}>
+                  <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 10 }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', marginTop: 2 }}>
+                      {!answered ? <IconSquare size={18} color="var(--muted)" /> : isCorrect ? <IconCheck size={18} color="#3fb950" /> : <IconX size={18} color="#f85149" />}
+                    </span>
+                    <div style={{ fontWeight: 600, fontSize: 14 }}>
+                      Q{i + 1}. {q.question}
+                      {flagged[i] && <span style={{ marginLeft: 8, display: 'inline-flex', alignItems: 'center', verticalAlign: 'middle' }}><IconFlag size={12} color="var(--gold)" /></span>}
+                    </div>
+                  </div>
+                  {!answered && <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 8 }}>Not answered</div>}
+                  {answered && !isCorrect && (
+                    <div style={{ fontSize: 12, color: '#f85149', marginBottom: 4 }}>Your answer: {q.choices[userAnswer]}</div>
+                  )}
+                  <div style={{ fontSize: 12, color: '#3fb950', marginBottom: 8 }}>Correct: {q.choices[q.answer]}</div>
+                  <div style={{ fontSize: 12, color: 'var(--muted)', background: 'var(--card2)', padding: '8px 12px', borderRadius: 6, display: 'flex', alignItems: 'flex-start', gap: 6 }}>
                     <IconLightbulb size={12} color="var(--gold)" style={{ flexShrink: 0, marginTop: 1 }} />
                     <span>{q.explanation}</span>
                   </div>
-              </div>
-            )
-          })}
+                </div>
+              )
+            })}
         </div>
 
         {/* Actions */}
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 24 }}>
-          <button className="btn btn-primary" onClick={() => { setCurrent(0); setAnswers({}); setShowAnswer(false); setTimeLeft(questions.length * 60); setFinished(false); setFlagged({}) }} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+          <button className="btn btn-primary" onClick={() => { setCurrent(0); setAnswers({}); setShowAnswer(false); setTimeLeft(questions.length * 60); setFinished(false); setFlagged({}); setFlaggedOnly(false) }} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
             <IconRefresh size={15} /> Retake Exam
           </button>
           <button className="btn btn-outline" onClick={() => router.push(`/exam?school=${school}`)} style={{ flex: 1 }}>
@@ -353,8 +414,15 @@ function ExamRoom() {
 
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-          <div style={{ fontSize: 13, color: 'var(--muted)' }}>
-            Question <strong style={{ color: 'var(--text)' }}>{current + 1}</strong> of {questions.length}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ fontSize: 13, color: 'var(--muted)' }}>
+              Question <strong style={{ color: 'var(--text)' }}>{current + 1}</strong> of {questions.length}
+            </div>
+            {mode === 'exam' && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#f85149', background: 'rgba(248,81,73,0.1)', border: '1px solid rgba(248,81,73,0.25)', borderRadius: 6, padding: '3px 7px' }}>
+                <IconEyeOff size={11} /> Exam Mode
+              </span>
+            )}
           </div>
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
             <button onClick={toggleFlag} style={{ background: flagged[current] ? 'rgba(201,168,76,0.2)' : 'var(--card)', border: '1px solid var(--border)', borderRadius: 6, padding: '6px 10px', cursor: 'pointer', fontSize: 13, color: flagged[current] ? 'var(--gold)' : 'var(--muted)', display: 'flex', alignItems: 'center', gap: 5 }}>
@@ -385,25 +453,25 @@ function ExamRoom() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
           {q.choices.map((choice, i) => {
             let cls = 'choice-btn'
-            if (showAnswer) {
+            if (showAnswer && mode === 'practice') {
               if (i === q.answer) cls += ' correct'
               else if (answers[current] === i && i !== q.answer) cls += ' wrong'
             } else if (answers[current] === i) {
               cls += ' selected'
             }
             return (
-              <button key={i} className={cls} onClick={() => handleAnswer(i)} disabled={showAnswer}>
+              <button key={i} className={cls} onClick={() => handleAnswer(i)} disabled={mode === 'practice' && showAnswer}>
                 <span className="choice-label">{['A', 'B', 'C', 'D'][i]}</span>
                 {choice}
-                {showAnswer && i === q.answer && <span style={{ marginLeft: 'auto' }}><IconCheck size={16} color="#3fb950" /></span>}
-                {showAnswer && answers[current] === i && i !== q.answer && <span style={{ marginLeft: 'auto' }}><IconX size={16} color="#f85149" /></span>}
+                {showAnswer && mode === 'practice' && i === q.answer && <span style={{ marginLeft: 'auto' }}><IconCheck size={16} color="#3fb950" /></span>}
+                {showAnswer && mode === 'practice' && answers[current] === i && i !== q.answer && <span style={{ marginLeft: 'auto' }}><IconX size={16} color="#f85149" /></span>}
               </button>
             )
           })}
         </div>
 
-        {/* Explanation */}
-        {showAnswer && (
+        {/* Explanation — practice mode only */}
+        {showAnswer && mode === 'practice' && (
           <div className="exam-explanation" style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
             <IconLightbulb size={14} color="var(--gold)" style={{ flexShrink: 0, marginTop: 2 }} />
             <span><strong style={{ color: 'var(--gold)' }}>Explanation: </strong>{q.explanation}</span>
@@ -412,16 +480,22 @@ function ExamRoom() {
 
         {/* Navigation */}
         <div style={{ display: 'flex', gap: 10 }}>
-          {!answered && !showAnswer && (
-            <button className="btn btn-outline" onClick={handleFinish} style={{ flex: 1 }}>
-              Finish Early
+          {mode === 'exam' ? (
+            <button className="btn btn-primary" onClick={handleNext} style={{ width: '100%' }}>
+              {current + 1 >= questions.length ? 'Submit All →' : 'Next →'}
             </button>
-          )}
-          {(showAnswer || !answered) && (
-            <button className="btn btn-primary" onClick={answered ? handleNext : handleFinish}
-              style={{ flex: 1 }} disabled={!showAnswer && answered === undefined}>
-              {current + 1 >= questions.length ? 'See Results →' : 'Next Question →'}
-            </button>
+          ) : (
+            <>
+              {!answered && !showAnswer && (
+                <button className="btn btn-outline" onClick={handleFinish} style={{ flex: 1 }}>Finish Early</button>
+              )}
+              {(showAnswer || !answered) && (
+                <button className="btn btn-primary" onClick={answered ? handleNext : handleFinish}
+                  style={{ flex: 1 }} disabled={!showAnswer && answered === undefined}>
+                  {current + 1 >= questions.length ? 'See Results →' : 'Next Question →'}
+                </button>
+              )}
+            </>
           )}
         </div>
 
@@ -435,10 +509,20 @@ function ExamRoom() {
               color: i === current ? '#0d1117' : answers[i] !== undefined ? '#3fb950' : 'var(--muted)',
               border: `1px solid ${i === current ? 'var(--gold)' : flagged[i] ? 'var(--gold)' : 'var(--border)'}`,
               boxShadow: flagged[i] ? '0 0 0 2px rgba(201,168,76,0.4)' : 'none',
-            }} onClick={() => { if (!showAnswer) { setCurrent(i); setShowAnswer(answers[i] !== undefined) } }}>
+            }} onClick={() => {
+              if (mode === 'exam') { setCurrent(i) }
+              else if (!showAnswer) { setCurrent(i); setShowAnswer(answers[i] !== undefined) }
+            }}>
               {i + 1}
             </button>
           ))}
+        </div>
+
+        {/* Keyboard hints */}
+        <div style={{ textAlign: 'center', fontSize: 11, color: 'var(--muted)', marginTop: 16, opacity: 0.55, display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
+          <span><kbd>A</kbd> <kbd>B</kbd> <kbd>C</kbd> <kbd>D</kbd> select</span>
+          <span><kbd>Space</kbd> next</span>
+          <span><kbd>F</kbd> flag</span>
         </div>
 
       </div>

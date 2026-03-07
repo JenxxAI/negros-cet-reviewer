@@ -198,3 +198,16 @@ body {
 .school-card:focus-within {
   border-color: var(--school-color, var(--gold));
 }
+
+/* Keyboard shortcut hints */
+kbd {
+  display: inline-block;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 10px;
+  font-family: inherit;
+  color: var(--muted);
+  line-height: 1.6;
+}

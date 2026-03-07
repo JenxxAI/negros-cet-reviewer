@@ -4,6 +4,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
   IconPlus, IconFileText, IconFlask, IconGrid, IconFlag, IconGlobe, IconSettings, IconLayers,
+  IconEye, IconEyeOff,
 } from '../../components/Icons'
 
 const SCHOOL_CONFIG = {
@@ -107,9 +108,10 @@ function ExamSetup() {
   const [selectedSubject, setSelectedSubject] = useState(null)
   const [difficulty, setDifficulty] = useState('mixed')
   const [questionCount, setQuestionCount] = useState(20)
+  const [examMode, setExamMode] = useState('practice')
 
   const handleStart = () => {
-    router.push(`/exam/start?school=${schoolParam}&subject=${selectedSubject}&difficulty=${difficulty}&count=${questionCount}`)
+    router.push(`/exam/start?school=${schoolParam}&subject=${selectedSubject}&difficulty=${difficulty}&count=${questionCount}&mode=${examMode}`)
   }
 
   return (
@@ -182,10 +184,31 @@ function ExamSetup() {
           </div>
         </div>
 
+        {/* Step 4 - Exam Mode */}
+        <div style={{ marginBottom: 32 }}>
+          <div className="step-label">Step 4 — Exam Mode</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 10 }}>
+            <button onClick={() => setExamMode('practice')}
+              style={{ textAlign: 'left', padding: '16px', borderRadius: 10, border: `1px solid ${examMode === 'practice' ? '#3fb950' : 'var(--border)'}`, background: examMode === 'practice' ? 'rgba(63,185,80,0.08)' : 'var(--card)', cursor: 'pointer', transition: 'all 0.15s' }}>
+              <div style={{ marginBottom: 8 }}><IconEye size={20} color={examMode === 'practice' ? '#3fb950' : 'var(--muted)'} /></div>
+              <div style={{ fontWeight: 700, fontSize: 14, color: examMode === 'practice' ? '#3fb950' : 'var(--text)', marginBottom: 4 }}>Practice Mode</div>
+              <div style={{ fontSize: 11, color: 'var(--muted)', lineHeight: 1.5 }}>See the correct answer and explanation immediately after each question</div>
+            </button>
+            <button onClick={() => setExamMode('exam')}
+              style={{ textAlign: 'left', padding: '16px', borderRadius: 10, border: `1px solid ${examMode === 'exam' ? '#f85149' : 'var(--border)'}`, background: examMode === 'exam' ? 'rgba(248,81,73,0.08)' : 'var(--card)', cursor: 'pointer', transition: 'all 0.15s' }}>
+              <div style={{ marginBottom: 8 }}><IconEyeOff size={20} color={examMode === 'exam' ? '#f85149' : 'var(--muted)'} /></div>
+              <div style={{ fontWeight: 700, fontSize: 14, color: examMode === 'exam' ? '#f85149' : 'var(--text)', marginBottom: 4 }}>True Exam Mode</div>
+              <div style={{ fontSize: 11, color: 'var(--muted)', lineHeight: 1.5 }}>No hints during the exam — all answers revealed after you submit</div>
+            </button>
+          </div>
+        </div>
+
         {/* Start Button */}
         <button className="btn btn-primary" onClick={handleStart} disabled={!selectedSubject}
           style={{ width: '100%', fontSize: 16, padding: '16px', opacity: selectedSubject ? 1 : 0.5 }}>
-          {selectedSubject ? `Start ${questionCount}-Item Exam →` : 'Select a subject to continue'}
+          {selectedSubject
+            ? `Start ${questionCount}-Item ${examMode === 'exam' ? 'True Exam' : 'Practice'} →`
+            : 'Select a subject to continue'}
         </button>
 
       </div>
