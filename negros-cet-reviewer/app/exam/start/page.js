@@ -1,8 +1,54 @@
 'use client'
-import { useState, useEffect, useCallback, Suspense } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
+import { supabase } from '../../../lib/supabase'
 
-// Sample questions — replace with Supabase fetch later
+// ─── Supabase question fetcher ─────────────────────────────────────────────
+async function fetchQuestionsFromDB(school, subject, difficulty, count) {
+  try {
+    const { data: schoolData } = await supabase
+      .from('schools')
+      .select('id')
+      .eq('slug', school)
+      .single()
+
+    if (!schoolData) return null
+
+    let q = supabase
+      .from('questions')
+      .select('id, question_text, choice_a, choice_b, choice_c, choice_d, correct_answer, explanation')
+      .eq('school_id', schoolData.id)
+      .eq('is_active', true)
+
+    if (subject !== 'all') {
+      const { data: subjectData } = await supabase
+        .from('subjects')
+        .select('id')
+        .eq('slug', subject)
+        .eq('school_id', schoolData.id)
+        .single()
+      if (subjectData) q = q.eq('subject_id', subjectData.id)
+    }
+
+    if (difficulty !== 'mixed') q = q.eq('difficulty', difficulty)
+
+    const { data, error } = await q.limit(count)
+    if (error || !data || data.length === 0) return null
+
+    const answerMap = { a: 0, b: 1, c: 2, d: 3 }
+    return data.map(row => ({
+      id: row.id,
+      question: row.question_text,
+      choices: [row.choice_a, row.choice_b, row.choice_c, row.choice_d],
+      answer: answerMap[row.correct_answer],
+      explanation: row.explanation || '',
+    }))
+  } catch {
+    return null
+  }
+}
+
+// Sample questions — fallback used when DB is empty or unavailable
 const SAMPLE_QUESTIONS = {
   math: [
     { id: 1, question: 'What is 15% of 200?', choices: ['25', '30', '35', '40'], answer: 1, explanation: '15% of 200 = 0.15 × 200 = 30' },
@@ -94,22 +140,52 @@ function ExamRoom() {
   const difficulty = searchParams.get('difficulty') || 'mixed'
   const count = parseInt(searchParams.get('count') || '10')
 
-  const subjectKey = subject === 'all' ? 'math' : subject
-  const rawQuestions = SAMPLE_QUESTIONS[subjectKey] || SAMPLE_QUESTIONS.math
-  const questions = rawQuestions.slice(0, Math.min(count, rawQuestions.length))
-
-  const TOTAL_TIME = questions.length * 60 // 1 min per question
-
+  const [questions, setQuestions] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
   const [current, setCurrent] = useState(0)
   const [answers, setAnswers] = useState({})
   const [showAnswer, setShowAnswer] = useState(false)
-  const [timeLeft, setTimeLeft] = useState(TOTAL_TIME)
+  const [timeLeft, setTimeLeft] = useState(count * 60)
   const [finished, setFinished] = useState(false)
   const [flagged, setFlagged] = useState({})
 
-  // Timer
+  // Load questions: try Supabase first, fall back to sample questions
   useEffect(() => {
-    if (finished) return
+    async function load() {
+      const dbQuestions = await fetchQuestionsFromDB(school, subject, difficulty, count)
+      const finalQuestions = (dbQuestions && dbQuestions.length > 0)
+        ? dbQuestions
+        : (() => {
+            const subjectKey = subject === 'all' ? 'math' : subject
+            const raw = SAMPLE_QUESTIONS[subjectKey] || SAMPLE_QUESTIONS.math
+            return raw.slice(0, Math.min(count, raw.length))
+          })()
+      if (finalQuestions.length === 0) { setError(true); setLoading(false); return }
+      setQuestions(finalQuestions)
+      setTimeLeft(finalQuestions.length * 60)
+      setLoading(false)
+    }
+    load()
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Save session to Supabase when exam finishes
+  useEffect(() => {
+    if (!finished || questions.length === 0) return
+    const score = questions.filter((q, i) => answers[i] === q.answer).length
+    supabase.from('sessions').insert({
+      school_slug: school,
+      subject_slug: subject,
+      difficulty,
+      score,
+      total_items: questions.length,
+      time_taken: Math.max(0, questions.length * 60 - timeLeft),
+    }).then()
+  }, [finished]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Timer — starts only after questions are loaded
+  useEffect(() => {
+    if (loading || finished) return
     const timer = setInterval(() => {
       setTimeLeft(t => {
         if (t <= 1) { clearInterval(timer); setFinished(true); return 0 }
@@ -117,9 +193,33 @@ function ExamRoom() {
       })
     }, 1000)
     return () => clearInterval(timer)
-  }, [finished])
+  }, [loading, finished])
 
   const formatTime = (s) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`
+
+  if (loading) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: 40, marginBottom: 16 }}>⏳</div>
+          <div style={{ color: 'var(--muted)', fontSize: 14 }}>Loading questions...</div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+        <div className="card" style={{ textAlign: 'center', maxWidth: 400 }}>
+          <div style={{ fontSize: 40, marginBottom: 12 }}>⚠️</div>
+          <div style={{ fontWeight: 700, marginBottom: 8 }}>Couldn’t load questions</div>
+          <p style={{ color: 'var(--muted)', fontSize: 14, marginBottom: 20 }}>Check your internet connection and try again.</p>
+          <button className="btn btn-primary" onClick={() => { setError(false); setLoading(true) }} style={{ width: '100%' }}>Try Again</button>
+        </div>
+      </div>
+    )
+  }
 
   const handleAnswer = (i) => {
     if (showAnswer) return
@@ -186,7 +286,7 @@ function ExamRoom() {
 
         {/* Actions */}
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-          <button className="btn btn-primary" onClick={() => { setCurrent(0); setAnswers({}); setShowAnswer(false); setTimeLeft(TOTAL_TIME); setFinished(false); setFlagged({}) }} style={{ flex: 1 }}>
+          <button className="btn btn-primary" onClick={() => { setCurrent(0); setAnswers({}); setShowAnswer(false); setTimeLeft(questions.length * 60); setFinished(false); setFlagged({}) }} style={{ flex: 1 }}>
             🔄 Retake Exam
           </button>
           <button className="btn btn-outline" onClick={() => router.push(`/exam?school=${school}`)} style={{ flex: 1 }}>
@@ -228,7 +328,7 @@ function ExamRoom() {
 
         {/* Question */}
         <div className="card" style={{ marginBottom: 16, minHeight: 100 }}>
-          <div style={{ fontSize: 11, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+          <div className="exam-label">
             {subject.toUpperCase()} · {difficulty.toUpperCase()}
           </div>
           <div style={{ fontSize: 17, fontWeight: 600, lineHeight: 1.6 }}>{q.question}</div>
@@ -257,7 +357,7 @@ function ExamRoom() {
 
         {/* Explanation */}
         {showAnswer && (
-          <div style={{ background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.2)', borderRadius: 10, padding: '12px 16px', marginBottom: 16, fontSize: 13, color: 'var(--muted)', lineHeight: 1.6 }}>
+          <div className="exam-explanation">
             <strong style={{ color: 'var(--gold)' }}>💡 Explanation: </strong>{q.explanation}
           </div>
         )}
@@ -280,16 +380,16 @@ function ExamRoom() {
         {/* Question dots */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 20, justifyContent: 'center' }}>
           {questions.map((_, i) => (
-            <div key={i} style={{
-              width: 28, height: 28, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 11, fontWeight: 700, cursor: 'pointer',
+            <button key={i} style={{
+              width: 44, height: 44, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 12, fontWeight: 700, cursor: 'pointer',
               background: i === current ? 'var(--gold)' : answers[i] !== undefined ? 'rgba(63,185,80,0.3)' : 'var(--card)',
               color: i === current ? '#0d1117' : answers[i] !== undefined ? '#3fb950' : 'var(--muted)',
               border: `1px solid ${i === current ? 'var(--gold)' : flagged[i] ? 'var(--gold)' : 'var(--border)'}`,
-              boxShadow: flagged[i] ? '0 0 0 2px rgba(201,168,76,0.4)' : 'none'
+              boxShadow: flagged[i] ? '0 0 0 2px rgba(201,168,76,0.4)' : 'none',
             }} onClick={() => { if (!showAnswer) { setCurrent(i); setShowAnswer(answers[i] !== undefined) } }}>
               {i + 1}
-            </div>
+            </button>
           ))}
         </div>
 

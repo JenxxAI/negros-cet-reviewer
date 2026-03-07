@@ -65,10 +65,8 @@ export default function HomePage() {
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
           {SCHOOLS.map(school => (
-            <Link key={school.name} href={`/exam?school=${school.name.toLowerCase()}`} style={{ textDecoration: 'none' }}>
-              <div className="card" style={{ cursor: 'pointer', transition: 'all 0.2s', height: '100%' }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = school.color}
-                onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}>
+            <Link key={school.name} href={`/exam?school=${school.name.toLowerCase().replace(/\s+/g, '')}`} style={{ textDecoration: 'none' }}>
+              <div className="card school-card" style={{ cursor: 'pointer', height: '100%', '--school-color': school.color }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 }}>
                   <div>
                     <div style={{ fontSize: 22, fontWeight: 900, color: school.color }}>{school.name}</div>
@@ -91,9 +89,7 @@ export default function HomePage() {
         {/* General Practice */}
         <div style={{ marginTop: 16 }}>
           <Link href="/exam?school=general" style={{ textDecoration: 'none' }}>
-            <div className="card" style={{ cursor: 'pointer', transition: 'border-color 0.2s', background: 'rgba(201,168,76,0.04)' }}
-              onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--gold)'}
-              onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}>
+            <div className="card school-card" style={{ cursor: 'pointer', background: 'rgba(201,168,76,0.04)', '--school-color': 'var(--gold)' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
                   <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--gold)' }}>🌟 General Practice Mode</div>
