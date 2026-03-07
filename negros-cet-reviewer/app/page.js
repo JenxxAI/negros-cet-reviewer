@@ -231,8 +231,8 @@ export default function HomePage() {
       </section>
 
       {/* FEEDBACK + TIP JAR */}
-      <section style={{ maxWidth: 900, margin: '0 auto', padding: '0 24px 80px' }}>
-        <div className="feedback-tip-row">
+      <section style={{ padding: '80px 24px' }}>
+        <div className="feedback-tip-row" style={{ maxWidth: 900, margin: '0 auto', justifyContent: 'center' }}>
 
           {/* Feedback */}
           <div className="card" style={{ flex: 1 }}>

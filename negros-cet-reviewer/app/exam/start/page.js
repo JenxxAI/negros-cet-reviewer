@@ -154,7 +154,8 @@ function ExamRoom() {
   const school = searchParams.get('school') || 'general'
   const subject = searchParams.get('subject') || 'math'
   const difficulty = searchParams.get('difficulty') || 'mixed'
-  const count = parseInt(searchParams.get('count') || '10')
+  const countRaw = parseInt(searchParams.get('count') || '10')
+  const count = (isNaN(countRaw) || countRaw < 1) ? 10 : Math.min(countRaw, 50)
   const mode = searchParams.get('mode') || 'practice'
 
   const [questions, setQuestions] = useState([])
