@@ -150,6 +150,24 @@ create index if not exists idx_subjects_school_id on subjects(school_id);
 create index if not exists idx_results_session_id on results(session_id);
 create index if not exists idx_sessions_user_id on sessions(user_id);
 
+-- Reports table (question issue reports from users)
+create table if not exists reports (
+  id uuid primary key default gen_random_uuid(),
+  question_id uuid references questions(id) on delete set null,
+  question_text text,
+  created_at timestamptz default now()
+);
+
+alter table reports enable row level security;
+
+do $$ begin
+  if not exists (
+    select 1 from pg_policies where policyname = 'Anyone can report' and tablename = 'reports'
+  ) then
+    create policy "Anyone can report" on reports for insert to anon with check (true);
+  end if;
+end $$;
+
 -- ============================================
 -- Sample Data (insert, skip duplicates)
 -- ============================================

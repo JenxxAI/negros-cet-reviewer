@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import ThemeToggle from '../components/ThemeToggle'
 import {
   IconTarget, IconClock, IconBarChart, IconTrendingUp, IconLightbulb, IconSmartphone,
   IconCheck, IconAlertTriangle, IconAward, IconStar,
@@ -28,12 +29,13 @@ export default function HomePage() {
     <div style={{ minHeight: '100vh' }}>
 
       {/* NAV */}
-      <nav style={{ borderBottom: '1px solid var(--border)', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: 'rgba(13,17,23,0.95)', backdropFilter: 'blur(10px)', zIndex: 100 }}>
+      <nav style={{ borderBottom: '1px solid var(--border)', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: 'var(--nav-bg)', backdropFilter: 'blur(10px)', zIndex: 100 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ fontSize: 22, fontWeight: 900, color: 'var(--gold)' }}>NegrosREV</span>
           <span className="badge badge-gold">FREE</span>
         </div>
-        <div style={{ display: 'flex', gap: 12 }}>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <ThemeToggle />
           <Link href="/exam" className="btn btn-primary" style={{ padding: '8px 20px', fontSize: 13 }}>Start Reviewing →</Link>
         </div>
       </nav>

@@ -5,7 +5,7 @@ import { supabase } from '../../../lib/supabase'
 import {
   IconClock, IconAlertTriangle, IconAward, IconBookOpen, IconCheck, IconX,
   IconClipboard, IconSquare, IconLightbulb, IconRefresh, IconTrendingUp, IconFlag,
-  IconEye, IconEyeOff,
+  IconEye, IconEyeOff, IconShare, IconAlertOctagon, IconBarChart,
 } from '../../../components/Icons'
 
 function shuffleArray(arr) {
@@ -30,7 +30,7 @@ async function fetchQuestionsFromDB(school, subject, difficulty, count) {
 
     let q = supabase
       .from('questions')
-      .select('id, question_text, choice_a, choice_b, choice_c, choice_d, correct_answer, explanation')
+      .select('id, question_text, choice_a, choice_b, choice_c, choice_d, correct_answer, explanation, subjects(name, slug)')
       .eq('school_id', schoolData.id)
       .eq('is_active', true)
 
@@ -56,6 +56,8 @@ async function fetchQuestionsFromDB(school, subject, difficulty, count) {
       choices: [row.choice_a, row.choice_b, row.choice_c, row.choice_d],
       answer: answerMap[row.correct_answer],
       explanation: row.explanation || '',
+      subjectTag: row.subjects?.slug || null,
+      subjectName: row.subjects?.name || null,
     }))
   } catch {
     return null
@@ -165,6 +167,8 @@ function ExamRoom() {
   const [finished, setFinished] = useState(false)
   const [flagged, setFlagged] = useState({})
   const [flaggedOnly, setFlaggedOnly] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const [reported, setReported] = useState({})
 
   // Load questions: try Supabase first, fall back to sample questions
   useEffect(() => {
@@ -173,8 +177,14 @@ function ExamRoom() {
       const finalQuestions = (dbQuestions && dbQuestions.length > 0)
         ? dbQuestions
         : (() => {
-            const subjectKey = subject === 'all' ? 'math' : subject
-            const raw = SAMPLE_QUESTIONS[subjectKey] || SAMPLE_QUESTIONS.math
+            if (subject === 'all') {
+              const allSubjects = ['math', 'english', 'logic', 'science', 'genknowledge']
+              const allQ = allSubjects.flatMap(s =>
+                (SAMPLE_QUESTIONS[s] || []).map(q => ({ ...q, subjectTag: s, subjectName: s.charAt(0).toUpperCase() + s.slice(1) }))
+              )
+              return shuffleArray(allQ).slice(0, Math.min(count, allQ.length))
+            }
+            const raw = SAMPLE_QUESTIONS[subject] || SAMPLE_QUESTIONS.math
             return raw.slice(0, Math.min(count, raw.length))
           })()
       if (finalQuestions.length === 0) { setError(true); setLoading(false); return }
@@ -294,11 +304,50 @@ function ExamRoom() {
 
   const toggleFlag = () => setFlagged(f => ({ ...f, [current]: !f[current] }))
 
+  const handleReport = async (q) => {
+    if (reported[q.id]) return
+    setReported(r => ({ ...r, [q.id]: true }))
+    try {
+      await supabase.from('reports').insert({ question_id: q.id, question_text: q.question })
+    } catch {
+      // Silently fail — reports table may not exist yet
+    }
+  }
+
   // Results
   if (finished) {
     const score = questions.filter((q, i) => answers[i] === q.answer).length
     const percent = Math.round((score / questions.length) * 100)
     const passed = percent >= 60
+
+    // Per-subject breakdown for Full Mock Exam (subject === 'all')
+    const subjectBreakdown = subject === 'all' ? (() => {
+      const map = {}
+      questions.forEach((q, i) => {
+        const tag = q.subjectTag || 'general'
+        const label = q.subjectName || tag.charAt(0).toUpperCase() + tag.slice(1)
+        if (!map[tag]) map[tag] = { label, total: 0, correct: 0 }
+        map[tag].total++
+        if (answers[i] === q.answer) map[tag].correct++
+      })
+      return Object.values(map)
+    })() : null
+
+    const shareResult = async () => {
+      const subjectLabel = subject === 'all' ? 'Full Mock Exam' : subject.charAt(0).toUpperCase() + subject.slice(1)
+      const text = `NegrosREV · ${school.toUpperCase()} · ${subjectLabel} · ${score}/${questions.length} (${percent}%)\nnegros-cet-reviewer.vercel.app`
+      try {
+        if (navigator.share) {
+          await navigator.share({ title: 'My NegrosREV Score', text })
+        } else {
+          await navigator.clipboard.writeText(text)
+          setCopied(true)
+          setTimeout(() => setCopied(false), 2000)
+        }
+      } catch {
+        // Silently ignore cancelled share or clipboard permission denied
+      }
+    }
 
     // Load history from localStorage
     let history = []
@@ -319,7 +368,40 @@ function ExamRoom() {
           <p style={{ color: 'var(--muted)', fontSize: 14, marginTop: 16 }}>
             {passed ? 'Great job! Keep practicing to improve your score.' : "Don't give up! Review the explanations below and try again."}
           </p>
+          <button
+            onClick={shareResult}
+            aria-label="Share or copy your score"
+            style={{ marginTop: 16, display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, padding: '8px 18px', borderRadius: 8, border: `1px solid ${copied ? 'var(--gold)' : 'var(--border)'}`, background: copied ? 'rgba(201,168,76,0.12)' : 'var(--card2)', color: copied ? 'var(--gold)' : 'var(--text)', cursor: 'pointer', transition: 'all 0.2s' }}
+          >
+            <IconShare size={14} />
+            {copied ? 'Copied!' : 'Share Score'}
+          </button>
         </div>
+
+        {/* Per-subject breakdown — only for Full Mock Exam */}
+        {subjectBreakdown && subjectBreakdown.length > 0 && (
+          <div className="card" style={{ marginBottom: 24 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <IconBarChart size={14} color="var(--gold)" /> Per-Subject Breakdown
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {subjectBreakdown.map(({ label, total, correct }) => {
+                const pct = Math.round((correct / total) * 100)
+                return (
+                  <div key={label}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 4 }}>
+                      <span style={{ fontWeight: 600 }}>{label}</span>
+                      <span style={{ color: pct >= 60 ? '#3fb950' : '#f85149', fontWeight: 700 }}>{correct}/{total} ({pct}%)</span>
+                    </div>
+                    <div className="progress-track">
+                      <div className="progress-fill" style={{ width: `${pct}%`, background: pct >= 60 ? 'linear-gradient(90deg,#3fb950,#4ade80)' : 'linear-gradient(90deg,#f85149,#fb7185)' }} />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Answer review */}
         <div style={{ marginBottom: 24 }}>
@@ -366,6 +448,15 @@ function ExamRoom() {
                     <IconLightbulb size={12} color="var(--gold)" style={{ flexShrink: 0, marginTop: 1 }} />
                     <span>{q.explanation}</span>
                   </div>
+                  <button
+                    onClick={() => handleReport(q)}
+                    disabled={reported[q.id]}
+                    aria-label={reported[q.id] ? 'Question reported' : 'Report an issue with this question'}
+                    style={{ marginTop: 8, display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, padding: '4px 10px', borderRadius: 6, border: `1px solid ${reported[q.id] ? 'rgba(201,168,76,0.3)' : 'var(--border)'}`, background: 'transparent', color: reported[q.id] ? 'var(--gold)' : 'var(--muted)', cursor: reported[q.id] ? 'default' : 'pointer', opacity: reported[q.id] ? 1 : 0.7 }}
+                  >
+                    <IconAlertOctagon size={11} />
+                    {reported[q.id] ? 'Reported' : 'Report issue'}
+                  </button>
                 </div>
               )
             })}
@@ -373,7 +464,7 @@ function ExamRoom() {
 
         {/* Actions */}
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 24 }}>
-          <button className="btn btn-primary" onClick={() => { setCurrent(0); setAnswers({}); setShowAnswer(false); setTimeLeft(questions.length * 60); setFinished(false); setFlagged({}); setFlaggedOnly(false) }} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+          <button className="btn btn-primary" onClick={() => { setCurrent(0); setAnswers({}); setShowAnswer(false); setTimeLeft(questions.length * 60); setFinished(false); setFlagged({}); setFlaggedOnly(false); setCopied(false); setReported({}) }} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
             <IconRefresh size={15} /> Retake Exam
           </button>
           <button className="btn btn-outline" onClick={() => router.push(`/exam?school=${school}`)} style={{ flex: 1 }}>
@@ -425,11 +516,18 @@ function ExamRoom() {
             )}
           </div>
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-            <button onClick={toggleFlag} style={{ background: flagged[current] ? 'rgba(201,168,76,0.2)' : 'var(--card)', border: '1px solid var(--border)', borderRadius: 6, padding: '6px 10px', cursor: 'pointer', fontSize: 13, color: flagged[current] ? 'var(--gold)' : 'var(--muted)', display: 'flex', alignItems: 'center', gap: 5 }}>
+            <button
+              onClick={toggleFlag}
+              aria-label={flagged[current] ? 'Remove flag from this question' : 'Flag this question for review'}
+              aria-pressed={!!flagged[current]}
+              style={{ background: flagged[current] ? 'rgba(201,168,76,0.2)' : 'var(--card)', border: '1px solid var(--border)', borderRadius: 6, padding: '6px 10px', cursor: 'pointer', fontSize: 13, color: flagged[current] ? 'var(--gold)' : 'var(--muted)', display: 'flex', alignItems: 'center', gap: 5 }}>
               <IconFlag size={14} color={flagged[current] ? 'var(--gold)' : 'var(--muted)'} />
               {flagged[current] ? 'Flagged' : 'Flag'}
             </button>
-            <div style={{ background: timeWarning ? 'rgba(248,81,73,0.15)' : 'var(--card)', border: `1px solid ${timeWarning ? '#f85149' : 'var(--border)'}`, borderRadius: 8, padding: '8px 14px', fontWeight: 700, fontSize: 15, color: timeWarning ? '#f85149' : 'var(--text)', fontVariantNumeric: 'tabular-nums', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div
+              role="timer"
+              aria-label={`Time remaining: ${formatTime(timeLeft)}`}
+              style={{ background: timeWarning ? 'rgba(248,81,73,0.15)' : 'var(--card)', border: `1px solid ${timeWarning ? '#f85149' : 'var(--border)'}`, borderRadius: 8, padding: '8px 14px', fontWeight: 700, fontSize: 15, color: timeWarning ? '#f85149' : 'var(--text)', fontVariantNumeric: 'tabular-nums', display: 'flex', alignItems: 'center', gap: 6 }}>
               <IconClock size={14} color={timeWarning ? '#f85149' : 'var(--text)'} />
               {formatTime(timeLeft)}
             </div>
@@ -450,7 +548,7 @@ function ExamRoom() {
         </div>
 
         {/* Choices */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
+        <div role="radiogroup" aria-label="Answer choices" style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
           {q.choices.map((choice, i) => {
             let cls = 'choice-btn'
             if (showAnswer && mode === 'practice') {
@@ -460,7 +558,15 @@ function ExamRoom() {
               cls += ' selected'
             }
             return (
-              <button key={i} className={cls} onClick={() => handleAnswer(i)} disabled={mode === 'practice' && showAnswer}>
+              <button
+                key={i}
+                className={cls}
+                onClick={() => handleAnswer(i)}
+                disabled={mode === 'practice' && showAnswer}
+                role="radio"
+                aria-checked={answers[current] === i}
+                aria-label={`Choice ${['A','B','C','D'][i]}: ${choice}`}
+              >
                 <span className="choice-label">{['A', 'B', 'C', 'D'][i]}</span>
                 {choice}
                 {showAnswer && mode === 'practice' && i === q.answer && <span style={{ marginLeft: 'auto' }}><IconCheck size={16} color="#3fb950" /></span>}
@@ -499,10 +605,9 @@ function ExamRoom() {
           )}
         </div>
 
-        {/* Question dots */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 20, justifyContent: 'center' }}>
+        <div role="navigation" aria-label="Question navigation" style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 20, justifyContent: 'center' }}>
           {questions.map((_, i) => (
-            <button key={i} style={{
+            <button key={i} aria-label={`Go to question ${i + 1}${flagged[i] ? ' (flagged)' : ''}${answers[i] !== undefined ? ' (answered)' : ''}`} aria-current={i === current ? 'true' : undefined} style={{
               width: 44, height: 44, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: 12, fontWeight: 700, cursor: 'pointer',
               background: i === current ? 'var(--gold)' : answers[i] !== undefined ? 'rgba(63,185,80,0.3)' : 'var(--card)',
