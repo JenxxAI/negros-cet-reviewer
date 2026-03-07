@@ -173,6 +173,17 @@ function ExamRoom() {
   useEffect(() => {
     if (!finished || questions.length === 0) return
     const score = questions.filter((q, i) => answers[i] === q.answer).length
+    const percent = Math.round((score / questions.length) * 100)
+
+    // Save to localStorage for progress tracking (no login needed)
+    try {
+      const key = `negrev_history_${school}_${subject}`
+      const prev = JSON.parse(localStorage.getItem(key) || '[]')
+      const entry = { score, total: questions.length, percent, difficulty, date: new Date().toLocaleDateString() }
+      localStorage.setItem(key, JSON.stringify([entry, ...prev].slice(0, 5)))
+    } catch {}
+
+    // Save session to Supabase
     supabase.from('sessions').insert({
       school_slug: school,
       subject_slug: subject,
@@ -243,6 +254,12 @@ function ExamRoom() {
     const percent = Math.round((score / questions.length) * 100)
     const passed = percent >= 60
 
+    // Load history from localStorage
+    let history = []
+    try {
+      history = JSON.parse(localStorage.getItem(`negrev_history_${school}_${subject}`) || '[]')
+    } catch {}
+
     return (
       <div style={{ minHeight: '100vh', padding: '24px', maxWidth: 700, margin: '0 auto' }}>
         {/* Score card */}
@@ -285,7 +302,7 @@ function ExamRoom() {
         </div>
 
         {/* Actions */}
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 24 }}>
           <button className="btn btn-primary" onClick={() => { setCurrent(0); setAnswers({}); setShowAnswer(false); setTimeLeft(questions.length * 60); setFinished(false); setFlagged({}) }} style={{ flex: 1 }}>
             🔄 Retake Exam
           </button>
@@ -293,6 +310,23 @@ function ExamRoom() {
             ← Choose Another Subject
           </button>
         </div>
+
+        {/* Score history */}
+        {history.length > 1 && (
+          <div className="card" style={{ marginBottom: 24 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 12 }}>📈 Your Recent Attempts</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {history.map((h, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13 }}>
+                  <span style={{ color: 'var(--muted)' }}>{h.date} · {h.difficulty}</span>
+                  <span style={{ fontWeight: 700, color: h.percent >= 60 ? '#3fb950' : '#f85149' }}>
+                    {h.score}/{h.total} ({h.percent}%)
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     )
   }

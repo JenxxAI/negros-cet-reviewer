@@ -22,6 +22,7 @@ create table if not exists subjects (
   icon text,
   school_id uuid references schools(id) on delete cascade,
   created_at timestamptz default now(),
+  updated_at timestamptz default now(),
   unique (slug, school_id)
 );
 
@@ -39,7 +40,8 @@ create table if not exists questions (
   explanation text,
   difficulty text default 'medium' check (difficulty in ('easy','medium','hard')),
   is_active boolean default true,
-  created_at timestamptz default now()
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
 );
 
 -- Sessions (exam attempts)
@@ -65,6 +67,26 @@ create table if not exists results (
 );
 
 -- ============================================
+-- Auto-update trigger for updated_at
+-- ============================================
+
+create or replace function set_updated_at()
+returns trigger as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$ language plpgsql;
+
+create or replace trigger trg_subjects_updated_at
+  before update on subjects
+  for each row execute function set_updated_at();
+
+create or replace trigger trg_questions_updated_at
+  before update on questions
+  for each row execute function set_updated_at();
+
+-- ============================================
 -- Row Level Security
 -- ============================================
 
@@ -81,7 +103,6 @@ alter table results enable row level security;
 do $$
 begin
 
-  -- Read policies
   if not exists (
     select 1 from pg_policies where policyname = 'Public read schools' and tablename = 'schools'
   ) then
@@ -100,7 +121,6 @@ begin
     create policy "Public read questions" on questions for select using (is_active = true);
   end if;
 
-  -- Insert policies
   if not exists (
     select 1 from pg_policies where policyname = 'Anyone insert sessions' and tablename = 'sessions'
   ) then
@@ -113,7 +133,7 @@ begin
     create policy "Anyone insert results" on results for insert with check (true);
   end if;
 
-  -- Fix broken RLS: drop old policy (had 'or user_id is null' security leak) and recreate
+  -- Drop and recreate to fix security leak (old version had 'or user_id is null')
   drop policy if exists "Users read own sessions" on sessions;
   create policy "Users read own sessions" on sessions
     for select using (auth.uid() = user_id);

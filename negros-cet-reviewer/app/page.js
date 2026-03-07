@@ -14,7 +14,7 @@ const FEATURES = [
   { icon: '🎯', title: 'School-Specific Exams', desc: 'Practice with questions tailored to your target school\'s exam format' },
   { icon: '⏱️', title: 'Timed Mock Exams', desc: 'Simulate the real exam pressure with countdown timers per section' },
   { icon: '📊', title: 'Instant Results', desc: 'Get your score immediately with explanations for every answer' },
-  { icon: '📈', title: 'Track Progress', desc: 'Monitor your improvement over time with detailed analytics' },
+  { icon: '📈', title: 'Track Progress', desc: 'See your last 5 attempts per subject — scores saved locally, no account needed' },
   { icon: '💡', title: 'Answer Explanations', desc: 'Understand why each answer is correct, not just memorize' },
   { icon: '📱', title: 'Mobile Friendly', desc: 'Review anytime, anywhere on any device — even on your phone' },
 ]
