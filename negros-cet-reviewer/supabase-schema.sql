@@ -173,7 +173,8 @@ end $$;
 create table if not exists reports (
   id uuid primary key default gen_random_uuid(),
   question_id uuid references questions(id) on delete set null,
-  question_text text,
+  reason text not null,
+  details text,
   created_at timestamptz default now()
 );
 
@@ -186,6 +187,52 @@ do $$ begin
     create policy "Anyone can report" on reports for insert to anon with check (true);
   end if;
 end $$;
+
+-- Survey responses (pre-launch survey data)
+create table if not exists survey_responses (
+  id uuid primary key default gen_random_uuid(),
+  school text[],
+  school_other text,
+  year_taken text,
+  course text[],
+  course_other text,
+  num_questions text,
+  exam_duration text,
+  exam_type text,
+  exam_type_other text,
+  exam_structure text,
+  exam_structure_other text,
+  passing_score text,
+  passing_score_other text,
+  subjects text[],
+  subjects_other text,
+  math_topics text[],
+  math_topics_other text,
+  english_topics text[],
+  english_topics_other text,
+  science_topics text[],
+  science_topics_other text,
+  logic_topics text[],
+  logic_topics_other text,
+  genknowledge_topics text[],
+  genknowledge_topics_other text,
+  hardest_part text,
+  hardest_part_other text,
+  easiest_part text,
+  easiest_part_other text,
+  time_enough text,
+  time_enough_other text,
+  review_method text[],
+  review_method_other text,
+  reviewer_available text,
+  reviewer_available_other text,
+  wanted_features text[],
+  wanted_features_other text,
+  would_use text,
+  suggestions text,
+  name text,
+  created_at timestamptz default now()
+);
 
 -- ============================================
 -- Sample Data (insert, skip duplicates)
