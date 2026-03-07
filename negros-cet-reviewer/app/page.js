@@ -1,9 +1,12 @@
 'use client'
+import { useState } from 'react'
 import Link from 'next/link'
 import ThemeToggle from '../components/ThemeToggle'
+import { supabase } from '../lib/supabase'
 import {
   IconTarget, IconClock, IconBarChart, IconTrendingUp, IconLightbulb, IconSmartphone,
   IconCheck, IconAlertTriangle, IconAward, IconStar, IconFacebook, IconLinkedIn,
+  IconHeart, IconMessageSquare, IconSend,
 } from '../components/Icons'
 
 const SCHOOLS = [
@@ -24,7 +27,36 @@ const FEATURES = [
   { icon: <IconSmartphone size={24} color="var(--gold)" />, title: 'Mobile Friendly', desc: 'Review anytime, anywhere on any device — even on your phone' },
 ]
 
+const INPUT_STYLE = {
+  width: '100%', boxSizing: 'border-box',
+  background: 'var(--card2)', border: '1px solid var(--border)',
+  borderRadius: 8, padding: '10px 12px',
+  color: 'var(--text)', fontSize: 14,
+  marginBottom: 10, fontFamily: 'inherit',
+}
+
 export default function HomePage() {
+  const [fbName, setFbName] = useState('')
+  const [fbMsg, setFbMsg] = useState('')
+  const [fbState, setFbState] = useState('idle') // idle | sending | sent | error
+
+  const submitFeedback = async (e) => {
+    e.preventDefault()
+    if (!fbMsg.trim()) return
+    setFbState('sending')
+    const { error } = await supabase.from('feedback').insert({
+      name: fbName.trim() || null,
+      message: fbMsg.trim(),
+    })
+    if (error) {
+      setFbState('error')
+    } else {
+      setFbState('sent')
+      setFbName('')
+      setFbMsg('')
+    }
+  }
+
   return (
     <div style={{ minHeight: '100vh' }}>
       {/* Skip to main content — keyboard accessibility */}
@@ -144,12 +176,103 @@ export default function HomePage() {
       </section>
 
       {/* CTA */}
-      <section style={{ maxWidth: 600, margin: '0 auto', padding: '0 24px 100px', textAlign: 'center' }}>
+      <section style={{ maxWidth: 600, margin: '0 auto', padding: '0 24px 60px', textAlign: 'center' }}>
         <div className="card" style={{ background: 'rgba(201,168,76,0.06)', borderColor: 'rgba(201,168,76,0.3)' }}>
           <div style={{ marginBottom: 16 }}><IconAward size={48} color="var(--gold)" /></div>
           <h2 style={{ fontSize: 24, fontWeight: 800, marginBottom: 10 }}>Ready to Start Reviewing?</h2>
           <p className="muted" style={{ fontSize: 14, marginBottom: 24, lineHeight: 1.6 }}>No account needed. Just pick your school and start practicing. 100% free, always.</p>
           <Link href="/exam" className="btn btn-primary" style={{ fontSize: 16, padding: '14px 36px' }}>Start Now — It's Free →</Link>
+        </div>
+      </section>
+
+      {/* FEEDBACK */}
+      <section id="feedback" style={{ maxWidth: 600, margin: '0 auto', padding: '0 24px 60px' }}>
+        <div className="card">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+            <IconMessageSquare size={20} color="var(--gold)" />
+            <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>Feedback &amp; Suggestions</h2>
+          </div>
+          <p style={{ color: 'var(--muted)', fontSize: 13, marginBottom: 20, lineHeight: 1.6 }}>
+            Found a bug? Want more questions for a specific school? Have a suggestion? I'd love to hear from you!
+          </p>
+
+          {fbState === 'sent' ? (
+            <div style={{ textAlign: 'center', padding: '28px 16px', background: 'rgba(63,185,80,0.07)', borderRadius: 10, border: '1px solid rgba(63,185,80,0.2)' }}>
+              <IconCheck size={32} color="#3fb950" />
+              <div style={{ fontWeight: 700, marginTop: 10, marginBottom: 4 }}>Thank you!</div>
+              <div style={{ fontSize: 13, color: 'var(--muted)' }}>Your feedback was received. I appreciate it!</div>
+              <button onClick={() => setFbState('idle')} style={{ marginTop: 16, background: 'transparent', border: '1px solid var(--border)', borderRadius: 8, padding: '8px 20px', color: 'var(--text)', cursor: 'pointer', fontSize: 13 }}>Send another</button>
+            </div>
+          ) : (
+            <form onSubmit={submitFeedback}>
+              <input
+                value={fbName}
+                onChange={e => setFbName(e.target.value)}
+                placeholder="Your name (optional)"
+                maxLength={80}
+                style={INPUT_STYLE}
+              />
+              <textarea
+                value={fbMsg}
+                onChange={e => setFbMsg(e.target.value)}
+                placeholder="Write your message, bug report, or suggestion here..."
+                required
+                maxLength={1000}
+                rows={4}
+                style={{ ...INPUT_STYLE, resize: 'vertical', marginBottom: 12 }}
+              />
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                <span style={{ fontSize: 11, color: 'var(--muted)' }}>{fbMsg.length}/1000</span>
+                {fbState === 'error' && <span style={{ fontSize: 12, color: '#f85149' }}>Failed — please try again.</span>}
+              </div>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={fbState === 'sending' || !fbMsg.trim()}
+                style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+              >
+                <IconSend size={14} />
+                {fbState === 'sending' ? 'Sending...' : 'Send Feedback'}
+              </button>
+            </form>
+          )}
+        </div>
+      </section>
+
+      {/* SUPPORT / TIP JAR */}
+      <section style={{ maxWidth: 600, margin: '0 auto', padding: '0 24px 80px', textAlign: 'center' }}>
+        <div className="card" style={{ borderColor: 'rgba(0,112,205,0.25)', background: 'rgba(0,112,205,0.04)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 8 }}>
+            <IconHeart size={18} color="#e85d75" />
+            <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>Support the Developer</h2>
+          </div>
+          <p style={{ color: 'var(--muted)', fontSize: 13, marginBottom: 24, lineHeight: 1.6, maxWidth: 440, margin: '0 auto 24px' }}>
+            NegrosREV is free, no ads, built on weekends for my OJT. If it helped you study, a small tip is hugely appreciated — but totally optional!
+          </p>
+
+          {/* GCash card */}
+          <div style={{ display: 'inline-block', background: 'white', borderRadius: 18, padding: '20px 28px', boxShadow: '0 4px 24px rgba(0,0,0,0.15)', marginBottom: 16, minWidth: 220 }}>
+            {/* GCash header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 14 }}>
+              <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#0070cd', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 13, fontWeight: 900 }}>G</div>
+              <span style={{ fontSize: 18, fontWeight: 900, color: '#0070cd', letterSpacing: '-0.5px' }}>GCash</span>
+            </div>
+            {/* QR Code */}
+            <img
+              src="/gcash-qr.png"
+              alt="Scan to tip via GCash"
+              width={190}
+              height={190}
+              style={{ display: 'block', borderRadius: 8, margin: '0 auto' }}
+            />
+            <div style={{ marginTop: 14, fontSize: 11, color: '#888', marginBottom: 4 }}>Transfer fees may apply.</div>
+            <div style={{ fontSize: 15, fontWeight: 900, color: '#0070cd', letterSpacing: '1px' }}>CA***S MI***L T.</div>
+            <div style={{ fontSize: 12, color: '#888', marginTop: 3 }}>+63 956 158 ····</div>
+          </div>
+
+          <p style={{ fontSize: 11, color: 'var(--muted)', marginTop: 8 }}>
+            Totally optional — the site remains free forever regardless 🙏
+          </p>
         </div>
       </section>
 

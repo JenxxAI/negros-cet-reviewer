@@ -150,6 +150,25 @@ create index if not exists idx_subjects_school_id on subjects(school_id);
 create index if not exists idx_results_session_id on results(session_id);
 create index if not exists idx_sessions_user_id on sessions(user_id);
 
+-- Feedback table (user comments and suggestions)
+create table if not exists feedback (
+  id uuid primary key default gen_random_uuid(),
+  name text,
+  message text not null check (length(message) > 0 and length(message) <= 1000),
+  created_at timestamptz default now()
+);
+
+alter table feedback enable row level security;
+
+do $$ begin
+  if not exists (
+    select 1 from pg_policies where policyname = 'Anyone can submit feedback' and tablename = 'feedback'
+  ) then
+    create policy "Anyone can submit feedback" on feedback
+      for insert to anon with check (length(message) > 0 and length(message) <= 1000);
+  end if;
+end $$;
+
 -- Reports table (question issue reports from users)
 create table if not exists reports (
   id uuid primary key default gen_random_uuid(),
