@@ -4,7 +4,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
   IconPlus, IconFileText, IconFlask, IconGrid, IconFlag, IconGlobe, IconSettings, IconLayers,
-  IconEye, IconEyeOff,
+  IconEye, IconEyeOff, IconChevronLeft,
 } from '../../components/Icons'
 
 const SCHOOL_CONFIG = {
@@ -119,7 +119,9 @@ function ExamSetup() {
       <div style={{ maxWidth: 800, margin: '0 auto' }}>
 
         {/* Back */}
-        <Link href="/" style={{ color: 'var(--muted)', fontSize: 13, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 24 }}>← Back to Home</Link>
+        <Link href="/" style={{ color: 'var(--muted)', fontSize: 13, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4, marginBottom: 24 }}>
+          <IconChevronLeft size={16} /> Back to Home
+        </Link>
 
         {/* School Header */}
         <div className="card" style={{ marginBottom: 24, borderColor: config.color + '40' }}>

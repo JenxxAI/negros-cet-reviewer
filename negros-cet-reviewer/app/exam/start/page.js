@@ -5,7 +5,7 @@ import { supabase } from '../../../lib/supabase'
 import {
   IconClock, IconAlertTriangle, IconAward, IconBookOpen, IconCheck, IconX,
   IconClipboard, IconSquare, IconLightbulb, IconRefresh, IconTrendingUp, IconFlag,
-  IconEye, IconEyeOff, IconShare, IconAlertOctagon, IconBarChart,
+  IconEye, IconEyeOff, IconShare, IconAlertOctagon, IconBarChart, IconChevronLeft,
 } from '../../../components/Icons'
 
 function shuffleArray(arr) {
@@ -467,8 +467,8 @@ function ExamRoom() {
           <button className="btn btn-primary" onClick={() => { setCurrent(0); setAnswers({}); setShowAnswer(false); setTimeLeft(questions.length * 60); setFinished(false); setFlagged({}); setFlaggedOnly(false); setCopied(false); setReported({}) }} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
             <IconRefresh size={15} /> Retake Exam
           </button>
-          <button className="btn btn-outline" onClick={() => router.push(`/exam?school=${school}`)} style={{ flex: 1 }}>
-            ← Choose Another Subject
+          <button className="btn btn-outline" onClick={() => router.push(`/exam?school=${school}`)} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+            <IconChevronLeft size={15} /> Choose Another Subject
           </button>
         </div>
 

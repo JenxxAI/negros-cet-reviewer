@@ -265,7 +265,19 @@ body {
   }
   .footer-grid {
     grid-template-columns: 1fr !important;
-    gap: 24px !important;
+    gap: 0 !important;
+  }
+  .footer-col {
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .footer-col:last-child { border-bottom: none; }
+  .footer-col-brand { text-align: center; }
+  .footer-col-brand .social-icon-btn-row { justify-content: center; }
+  .footer-links-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 2px 16px !important;
   }
   .footer-bottom {
     flex-direction: column !important;
@@ -273,29 +285,29 @@ body {
     gap: 8px !important;
   }
   .hide-sm { display: none !important; }
+  /* Navbar CTA on mobile: hide full label, show compact */
+  .nav-cta { padding: 8px 12px !important; font-size: 13px !important; }
+  .nav-cta-label { display: none !important; }
 }
 
-/* Social links in footer */
-.social-link {
+/* Social icon buttons in footer */
+.social-icon-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  color: var(--muted);
-  text-decoration: none;
-  font-size: 13px;
-  padding: 9px 14px;
-  border-radius: 8px;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
   border: 1px solid var(--border);
   background: var(--card2);
-  transition: all 0.2s;
-  font-weight: 500;
-  width: 100%;
-  box-sizing: border-box;
+  text-decoration: none;
+  transition: all 0.18s;
+  flex-shrink: 0;
 }
-.social-link:hover {
-  color: var(--gold);
+.social-icon-btn:hover {
   border-color: var(--gold);
-  background: rgba(201,168,76,0.06);
+  background: rgba(201,168,76,0.08);
+  transform: translateY(-1px);
 }
 
 .footer-grid {
@@ -303,6 +315,14 @@ body {
   grid-template-columns: 1.6fr 1fr 1fr;
   gap: 40px;
   align-items: start;
+}
+
+.footer-col { /* no extra styles needed on desktop */ }
+.footer-col-brand { /* centered handled by mobile only */ }
+
+.footer-links-grid {
+  display: flex;
+  flex-direction: column;
 }
 
 .footer-bottom {
@@ -323,7 +343,9 @@ body {
 }
 .footer-nav-link:hover { color: var(--text); }
 
-/* Keyboard shortcut hints */
+/* Navbar CTA - responsive */
+.nav-cta { padding: 8px 20px; font-size: 13px; display: inline-flex; align-items: center; gap: 5px; }
+.nav-cta-icon { font-style: normal; }
 kbd {
   display: inline-block;
   background: var(--card2);

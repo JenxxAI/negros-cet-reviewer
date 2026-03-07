@@ -70,7 +70,10 @@ export default function HomePage() {
         </div>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           <ThemeToggle />
-          <Link href="/exam" className="btn btn-primary" style={{ padding: '8px 20px', fontSize: 13 }}>Start Reviewing →</Link>
+          <Link href="/exam" className="btn btn-primary nav-cta">
+            <span className="nav-cta-label">Start Reviewing</span>
+            <span className="nav-cta-icon">→</span>
+          </Link>
         </div>
       </nav>
 
@@ -250,29 +253,11 @@ export default function HomePage() {
             NegrosREV is free, no ads, built on weekends for my OJT. If it helped you study, a small tip is hugely appreciated — but totally optional!
           </p>
 
-          {/* GCash card */}
-          <div style={{ display: 'inline-block', background: 'white', borderRadius: 18, padding: '20px 28px', boxShadow: '0 4px 24px rgba(0,0,0,0.15)', marginBottom: 16, minWidth: 220 }}>
-            {/* GCash header */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 14 }}>
-              <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#0070cd', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 13, fontWeight: 900 }}>G</div>
-              <span style={{ fontSize: 18, fontWeight: 900, color: '#0070cd', letterSpacing: '-0.5px' }}>GCash</span>
-            </div>
-            {/* QR Code */}
-            <img
-              src="/gcash-qr.png"
-              alt="Scan to tip via GCash"
-              width={190}
-              height={190}
-              style={{ display: 'block', borderRadius: 8, margin: '0 auto' }}
-            />
-            <div style={{ marginTop: 14, fontSize: 11, color: '#888', marginBottom: 4 }}>Transfer fees may apply.</div>
-            <div style={{ fontSize: 15, fontWeight: 900, color: '#0070cd', letterSpacing: '1px' }}>CA***S MI***L T.</div>
-            <div style={{ fontSize: 12, color: '#888', marginTop: 3 }}>+63 956 158 ····</div>
-          </div>
-
-          <p style={{ fontSize: 11, color: 'var(--muted)', marginTop: 8 }}>
-            Totally optional — the site remains free forever regardless 🙏
-          </p>
+          <img
+            src="/gcash_qr.png"
+            alt="Scan to tip via GCash"
+            style={{ display: 'block', margin: '8px auto 0', borderRadius: 16, maxWidth: 240, width: '100%', boxShadow: '0 4px 20px rgba(0,0,0,0.18)' }}
+          />
         </div>
       </section>
 
@@ -286,7 +271,7 @@ export default function HomePage() {
           <div className="footer-grid">
 
             {/* Brand column */}
-            <div>
+            <div className="footer-col footer-col-brand">
               <div style={{ fontSize: 22, fontWeight: 900, color: 'var(--gold)', marginBottom: 10 }}>NegrosREV</div>
               <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.7, marginBottom: 16, maxWidth: 320 }}>
                 Free community-based college entrance reviewer for students in Negros Occidental. Built by a student, for students.
@@ -295,40 +280,44 @@ export default function HomePage() {
             </div>
 
             {/* Quick Links */}
-            <div>
+            <div className="footer-col">
               <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 14 }}>Quick Links</div>
-              <Link href="/exam" className="footer-nav-link">Start Reviewing</Link>
-              <Link href="#schools" className="footer-nav-link">Supported Schools</Link>
-              <Link href="/exam?school=general" className="footer-nav-link">General Practice</Link>
-              <Link href="/exam?school=sunn" className="footer-nav-link">SUNN Reviewer</Link>
-              <Link href="/exam?school=tup" className="footer-nav-link">TUP Reviewer</Link>
+              <div className="footer-links-grid">
+                <Link href="/exam" className="footer-nav-link">Start Reviewing</Link>
+                <Link href="#schools" className="footer-nav-link">Supported Schools</Link>
+                <Link href="/exam?school=general" className="footer-nav-link">General Practice</Link>
+                <Link href="/exam?school=sunn" className="footer-nav-link">SUNN Reviewer</Link>
+                <Link href="/exam?school=tup" className="footer-nav-link">TUP Reviewer</Link>
+              </div>
             </div>
 
             {/* Connect */}
-            <div>
+            <div className="footer-col">
               <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 14 }}>Made by</div>
               <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 14, lineHeight: 1.6 }}>
                 Carlos Miguel Torres<br />
                 <span style={{ fontSize: 12 }}>Student · SUNN · Negros Occidental</span>
               </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
                 <a
                   href="https://www.facebook.com/JenxxAi"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="social-link"
+                  className="social-icon-btn"
+                  aria-label="Facebook"
+                  title="Facebook"
                 >
-                  <IconFacebook size={15} color="#1877f2" />
-                  <span>Facebook</span>
+                  <IconFacebook size={16} color="#1877f2" />
                 </a>
                 <a
                   href="https://www.linkedin.com/in/carlos-miguel-torres-2644a9332/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="social-link"
+                  className="social-icon-btn"
+                  aria-label="LinkedIn"
+                  title="LinkedIn"
                 >
-                  <IconLinkedIn size={15} color="#0a66c2" />
-                  <span>LinkedIn</span>
+                  <IconLinkedIn size={16} color="#0a66c2" />
                 </a>
               </div>
             </div>
