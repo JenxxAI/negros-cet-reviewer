@@ -3,7 +3,7 @@ import Link from 'next/link'
 import ThemeToggle from '../components/ThemeToggle'
 import {
   IconTarget, IconClock, IconBarChart, IconTrendingUp, IconLightbulb, IconSmartphone,
-  IconCheck, IconAlertTriangle, IconAward, IconStar,
+  IconCheck, IconAlertTriangle, IconAward, IconStar, IconFacebook, IconLinkedIn,
 } from '../components/Icons'
 
 const SCHOOLS = [
@@ -27,6 +27,8 @@ const FEATURES = [
 export default function HomePage() {
   return (
     <div style={{ minHeight: '100vh' }}>
+      {/* Skip to main content — keyboard accessibility */}
+      <a href="#main-content" className="skip-link">Skip to content</a>
 
       {/* NAV */}
       <nav style={{ borderBottom: '1px solid var(--border)', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: 'var(--nav-bg)', backdropFilter: 'blur(10px)', zIndex: 100 }}>
@@ -41,7 +43,8 @@ export default function HomePage() {
       </nav>
 
       {/* HERO */}
-      <section style={{ textAlign: 'center', padding: '80px 24px 60px', maxWidth: 700, margin: '0 auto' }}>
+      <main id="main-content">
+      <section style={{ textAlign: 'center', padding: '72px 20px 56px', maxWidth: 680, margin: '0 auto' }}>
         <div className="badge badge-gold" style={{ marginBottom: 20, fontSize: 12 }}>Community-Based · Free Forever · Negros Occidental</div>
         <h1 style={{ fontSize: 'clamp(32px, 6vw, 56px)', fontWeight: 900, lineHeight: 1.1, marginBottom: 20 }}>
           Ace Your College<br /><span className="gold">Entrance Exam</span>
@@ -49,7 +52,7 @@ export default function HomePage() {
         <p style={{ fontSize: 16, color: 'var(--muted)', lineHeight: 1.7, marginBottom: 36, maxWidth: 520, margin: '0 auto 36px' }}>
           Free practice reviewer for students applying to colleges and universities in Negros Occidental. No signup required. No ads. Built by a student, for students.
         </p>
-        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+        <div className="hero-ctas" style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
           <Link href="/exam" className="btn btn-primary" style={{ fontSize: 16, padding: '14px 32px' }}>Start Practicing Free →</Link>
           <Link href="#schools" className="btn btn-outline" style={{ fontSize: 16, padding: '14px 32px' }}>View Schools</Link>
         </div>
@@ -105,14 +108,14 @@ export default function HomePage() {
         <div style={{ marginTop: 16 }}>
           <Link href="/exam?school=general" style={{ textDecoration: 'none' }}>
             <div className="card school-card" style={{ cursor: 'pointer', background: 'rgba(201,168,76,0.04)', '--school-color': 'var(--gold)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--gold)', display: 'flex', alignItems: 'center', gap: 8 }}><IconStar size={18} color="var(--gold)" /> General Practice Mode</div>
-                  <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4 }}>Not sure which school? Practice all subjects that appear in most Negros entrance exams</div>
+              <div className="gp-card-inner" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--gold)', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}><IconStar size={18} color="var(--gold)" /> General Practice Mode</div>
+                  <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 6, lineHeight: 1.5 }}>Not sure which school? Practice all subjects that appear in most Negros entrance exams.</div>
                 </div>
-                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end', maxWidth: 300 }}>
+                <div className="gp-card-tags" style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end', flexShrink: 0 }}>
                   {['Math', 'English', 'Science', 'Logic', 'Filipino', 'Gen. Knowledge'].map(s => (
-                    <span key={s} style={{ background: 'var(--card2)', border: '1px solid var(--border)', borderRadius: 6, padding: '3px 8px', fontSize: 11, color: 'var(--muted)' }}>{s}</span>
+                    <span key={s} style={{ background: 'var(--card2)', border: '1px solid var(--border)', borderRadius: 6, padding: '3px 8px', fontSize: 11, color: 'var(--muted)', whiteSpace: 'nowrap' }}>{s}</span>
                   ))}
                 </div>
               </div>
@@ -150,10 +153,74 @@ export default function HomePage() {
         </div>
       </section>
 
+      </main>
+
       {/* FOOTER */}
-      <footer style={{ borderTop: '1px solid var(--border)', padding: '24px', textAlign: 'center', fontSize: 12, color: 'var(--muted)' }}>
-        <p>NegrosREV — Built by a student from SUNN, for students of Negros Occidental</p>
-        <p style={{ marginTop: 6 }}>Independent community project · Not affiliated with any school · All questions are original</p>
+      <footer style={{ borderTop: '1px solid var(--border)', background: 'var(--card)', padding: '48px 24px 0' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+
+          {/* Footer grid */}
+          <div className="footer-grid">
+
+            {/* Brand column */}
+            <div>
+              <div style={{ fontSize: 22, fontWeight: 900, color: 'var(--gold)', marginBottom: 10 }}>NegrosREV</div>
+              <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.7, marginBottom: 16, maxWidth: 320 }}>
+                Free community-based college entrance reviewer for students in Negros Occidental. Built by a student, for students.
+              </p>
+              <span className="badge badge-gold" style={{ fontSize: 11 }}>Free Forever · No Ads · No Signup</span>
+            </div>
+
+            {/* Quick Links */}
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 14 }}>Quick Links</div>
+              <Link href="/exam" className="footer-nav-link">Start Reviewing</Link>
+              <Link href="#schools" className="footer-nav-link">Supported Schools</Link>
+              <Link href="/exam?school=general" className="footer-nav-link">General Practice</Link>
+              <Link href="/exam?school=sunn" className="footer-nav-link">SUNN Reviewer</Link>
+              <Link href="/exam?school=tup" className="footer-nav-link">TUP Reviewer</Link>
+            </div>
+
+            {/* Connect */}
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 14 }}>Made by</div>
+              <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 14, lineHeight: 1.6 }}>
+                Carlos Miguel Torres<br />
+                <span style={{ fontSize: 12 }}>Student · SUNN · Negros Occidental</span>
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <a
+                  href="https://www.facebook.com/JenxxAi"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="social-link"
+                >
+                  <IconFacebook size={15} color="#1877f2" />
+                  <span>Facebook</span>
+                </a>
+                <a
+                  href="https://www.linkedin.com/in/carlos-miguel-torres-2644a9332/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="social-link"
+                >
+                  <IconLinkedIn size={15} color="#0a66c2" />
+                  <span>LinkedIn</span>
+                </a>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Bottom bar */}
+          <div style={{ borderTop: '1px solid var(--border)', marginTop: 40, padding: '20px 0' }}>
+            <div className="footer-bottom">
+              <span style={{ fontSize: 12, color: 'var(--muted)' }}>© 2025 NegrosREV · Carlos Miguel Torres</span>
+              <span style={{ fontSize: 12, color: 'var(--muted)' }}>Independent project · Not affiliated with any school</span>
+            </div>
+          </div>
+
+        </div>
       </footer>
 
     </div>
