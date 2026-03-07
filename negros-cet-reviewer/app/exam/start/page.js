@@ -2,6 +2,10 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
+import {
+  IconClock, IconAlertTriangle, IconAward, IconBookOpen, IconCheck, IconX,
+  IconClipboard, IconSquare, IconLightbulb, IconRefresh, IconTrendingUp, IconFlag,
+} from '../../../components/Icons'
 
 // ─── Supabase question fetcher ─────────────────────────────────────────────
 async function fetchQuestionsFromDB(school, subject, difficulty, count) {
@@ -212,7 +216,7 @@ function ExamRoom() {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: 40, marginBottom: 16 }}>⏳</div>
+          <div style={{ marginBottom: 16 }}><IconClock size={40} color="var(--gold)" /></div>
           <div style={{ color: 'var(--muted)', fontSize: 14 }}>Loading questions...</div>
         </div>
       </div>
@@ -223,7 +227,7 @@ function ExamRoom() {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
         <div className="card" style={{ textAlign: 'center', maxWidth: 400 }}>
-          <div style={{ fontSize: 40, marginBottom: 12 }}>⚠️</div>
+          <div style={{ marginBottom: 12 }}><IconAlertTriangle size={40} color="#f85149" /></div>
           <div style={{ fontWeight: 700, marginBottom: 8 }}>Couldn’t load questions</div>
           <p style={{ color: 'var(--muted)', fontSize: 14, marginBottom: 20 }}>Check your internet connection and try again.</p>
           <button className="btn btn-primary" onClick={() => { setError(false); setLoading(true) }} style={{ width: '100%' }}>Try Again</button>
@@ -264,11 +268,11 @@ function ExamRoom() {
       <div style={{ minHeight: '100vh', padding: '24px', maxWidth: 700, margin: '0 auto' }}>
         {/* Score card */}
         <div className="card" style={{ textAlign: 'center', marginBottom: 24, borderColor: passed ? '#3fb950' : '#f85149' }}>
-          <div style={{ fontSize: 60, marginBottom: 12 }}>{passed ? '🎉' : '📚'}</div>
+          <div style={{ marginBottom: 12 }}>{passed ? <IconAward size={60} color="#3fb950" /> : <IconBookOpen size={60} color="#f85149" />}</div>
           <div style={{ fontSize: 40, fontWeight: 900, color: passed ? '#3fb950' : '#f85149' }}>{score}/{questions.length}</div>
           <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>{percent}%</div>
-          <span className={`badge ${passed ? 'badge-green' : 'badge-red'}`} style={{ fontSize: 14, padding: '6px 16px' }}>
-            {passed ? '✅ PASSED' : '❌ NEEDS IMPROVEMENT'}
+          <span className={`badge ${passed ? 'badge-green' : 'badge-red'}`} style={{ fontSize: 14, padding: '6px 16px', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            {passed ? <><IconCheck size={14} /> PASSED</> : <><IconX size={14} /> NEEDS IMPROVEMENT</>}
           </span>
           <p style={{ color: 'var(--muted)', fontSize: 14, marginTop: 16 }}>
             {passed ? 'Great job! Keep practicing to improve your score.' : "Don't give up! Review the explanations below and try again."}
@@ -277,7 +281,9 @@ function ExamRoom() {
 
         {/* Answer review */}
         <div style={{ marginBottom: 24 }}>
-          <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>📋 Answer Review</div>
+          <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <IconClipboard size={16} /> Answer Review
+          </div>
           {questions.map((q, i) => {
             const userAnswer = answers[i]
             const isCorrect = userAnswer === q.answer
@@ -285,7 +291,9 @@ function ExamRoom() {
             return (
               <div key={i} className="card" style={{ marginBottom: 12, borderColor: !answered ? 'var(--border)' : isCorrect ? '#3fb950' : '#f85149' }}>
                 <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 10 }}>
-                  <span style={{ fontSize: 18 }}>{!answered ? '⬜' : isCorrect ? '✅' : '❌'}</span>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', marginTop: 2 }}>
+                    {!answered ? <IconSquare size={18} color="var(--muted)" /> : isCorrect ? <IconCheck size={18} color="#3fb950" /> : <IconX size={18} color="#f85149" />}
+                  </span>
                   <div style={{ fontWeight: 600, fontSize: 14 }}>Q{i + 1}. {q.question}</div>
                 </div>
                 {!answered && <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 8 }}>Not answered</div>}
@@ -293,9 +301,10 @@ function ExamRoom() {
                   <div style={{ fontSize: 12, color: '#f85149', marginBottom: 4 }}>Your answer: {q.choices[userAnswer]}</div>
                 )}
                 <div style={{ fontSize: 12, color: '#3fb950', marginBottom: 8 }}>Correct: {q.choices[q.answer]}</div>
-                <div style={{ fontSize: 12, color: 'var(--muted)', background: 'var(--card2)', padding: '8px 12px', borderRadius: 6 }}>
-                  💡 {q.explanation}
-                </div>
+                <div style={{ fontSize: 12, color: 'var(--muted)', background: 'var(--card2)', padding: '8px 12px', borderRadius: 6, display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+                    <IconLightbulb size={12} color="var(--gold)" style={{ flexShrink: 0, marginTop: 1 }} />
+                    <span>{q.explanation}</span>
+                  </div>
               </div>
             )
           })}
@@ -303,8 +312,8 @@ function ExamRoom() {
 
         {/* Actions */}
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 24 }}>
-          <button className="btn btn-primary" onClick={() => { setCurrent(0); setAnswers({}); setShowAnswer(false); setTimeLeft(questions.length * 60); setFinished(false); setFlagged({}) }} style={{ flex: 1 }}>
-            🔄 Retake Exam
+          <button className="btn btn-primary" onClick={() => { setCurrent(0); setAnswers({}); setShowAnswer(false); setTimeLeft(questions.length * 60); setFinished(false); setFlagged({}) }} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+            <IconRefresh size={15} /> Retake Exam
           </button>
           <button className="btn btn-outline" onClick={() => router.push(`/exam?school=${school}`)} style={{ flex: 1 }}>
             ← Choose Another Subject
@@ -314,7 +323,9 @@ function ExamRoom() {
         {/* Score history */}
         {history.length > 1 && (
           <div className="card" style={{ marginBottom: 24 }}>
-            <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 12 }}>📈 Your Recent Attempts</div>
+            <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <IconTrendingUp size={14} /> Your Recent Attempts
+            </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {history.map((h, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13 }}>
@@ -346,11 +357,13 @@ function ExamRoom() {
             Question <strong style={{ color: 'var(--text)' }}>{current + 1}</strong> of {questions.length}
           </div>
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-            <button onClick={toggleFlag} style={{ background: flagged[current] ? 'rgba(201,168,76,0.2)' : 'var(--card)', border: '1px solid var(--border)', borderRadius: 6, padding: '6px 10px', cursor: 'pointer', fontSize: 14, color: flagged[current] ? 'var(--gold)' : 'var(--muted)' }}>
-              🚩 {flagged[current] ? 'Flagged' : 'Flag'}
+            <button onClick={toggleFlag} style={{ background: flagged[current] ? 'rgba(201,168,76,0.2)' : 'var(--card)', border: '1px solid var(--border)', borderRadius: 6, padding: '6px 10px', cursor: 'pointer', fontSize: 13, color: flagged[current] ? 'var(--gold)' : 'var(--muted)', display: 'flex', alignItems: 'center', gap: 5 }}>
+              <IconFlag size={14} color={flagged[current] ? 'var(--gold)' : 'var(--muted)'} />
+              {flagged[current] ? 'Flagged' : 'Flag'}
             </button>
-            <div style={{ background: timeWarning ? 'rgba(248,81,73,0.15)' : 'var(--card)', border: `1px solid ${timeWarning ? '#f85149' : 'var(--border)'}`, borderRadius: 8, padding: '8px 14px', fontWeight: 700, fontSize: 15, color: timeWarning ? '#f85149' : 'var(--text)', fontVariantNumeric: 'tabular-nums' }}>
-              ⏱️ {formatTime(timeLeft)}
+            <div style={{ background: timeWarning ? 'rgba(248,81,73,0.15)' : 'var(--card)', border: `1px solid ${timeWarning ? '#f85149' : 'var(--border)'}`, borderRadius: 8, padding: '8px 14px', fontWeight: 700, fontSize: 15, color: timeWarning ? '#f85149' : 'var(--text)', fontVariantNumeric: 'tabular-nums', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <IconClock size={14} color={timeWarning ? '#f85149' : 'var(--text)'} />
+              {formatTime(timeLeft)}
             </div>
           </div>
         </div>
@@ -382,8 +395,8 @@ function ExamRoom() {
               <button key={i} className={cls} onClick={() => handleAnswer(i)} disabled={showAnswer}>
                 <span className="choice-label">{['A', 'B', 'C', 'D'][i]}</span>
                 {choice}
-                {showAnswer && i === q.answer && <span style={{ marginLeft: 'auto', color: '#3fb950', fontSize: 16 }}>✓</span>}
-                {showAnswer && answers[current] === i && i !== q.answer && <span style={{ marginLeft: 'auto', color: '#f85149', fontSize: 16 }}>✗</span>}
+                {showAnswer && i === q.answer && <span style={{ marginLeft: 'auto' }}><IconCheck size={16} color="#3fb950" /></span>}
+                {showAnswer && answers[current] === i && i !== q.answer && <span style={{ marginLeft: 'auto' }}><IconX size={16} color="#f85149" /></span>}
               </button>
             )
           })}
@@ -391,8 +404,9 @@ function ExamRoom() {
 
         {/* Explanation */}
         {showAnswer && (
-          <div className="exam-explanation">
-            <strong style={{ color: 'var(--gold)' }}>💡 Explanation: </strong>{q.explanation}
+          <div className="exam-explanation" style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+            <IconLightbulb size={14} color="var(--gold)" style={{ flexShrink: 0, marginTop: 2 }} />
+            <span><strong style={{ color: 'var(--gold)' }}>Explanation: </strong>{q.explanation}</span>
           </div>
         )}
 

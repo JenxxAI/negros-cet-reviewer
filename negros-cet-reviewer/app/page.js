@@ -1,5 +1,9 @@
 'use client'
 import Link from 'next/link'
+import {
+  IconTarget, IconClock, IconBarChart, IconTrendingUp, IconLightbulb, IconSmartphone,
+  IconCheck, IconAlertTriangle, IconAward, IconStar,
+} from '../components/Icons'
 
 const SCHOOLS = [
   { name: 'SUNN', full: 'State University of Northern Negros', exam: 'General Aptitude Test', subjects: ['Logic', 'Math', 'Gen. Knowledge'], color: '#3fb950' },
@@ -11,12 +15,12 @@ const SCHOOLS = [
 ]
 
 const FEATURES = [
-  { icon: '🎯', title: 'School-Specific Exams', desc: 'Practice with questions tailored to your target school\'s exam format' },
-  { icon: '⏱️', title: 'Timed Mock Exams', desc: 'Simulate the real exam pressure with countdown timers per section' },
-  { icon: '📊', title: 'Instant Results', desc: 'Get your score immediately with explanations for every answer' },
-  { icon: '📈', title: 'Track Progress', desc: 'See your last 5 attempts per subject — scores saved locally, no account needed' },
-  { icon: '💡', title: 'Answer Explanations', desc: 'Understand why each answer is correct, not just memorize' },
-  { icon: '📱', title: 'Mobile Friendly', desc: 'Review anytime, anywhere on any device — even on your phone' },
+  { icon: <IconTarget size={24} color="var(--gold)" />, title: 'School-Specific Exams', desc: 'Practice with questions tailored to your target school\'s exam format' },
+  { icon: <IconClock size={24} color="var(--gold)" />, title: 'Timed Mock Exams', desc: 'Simulate the real exam pressure with countdown timers per section' },
+  { icon: <IconBarChart size={24} color="var(--gold)" />, title: 'Instant Results', desc: 'Get your score immediately with explanations for every answer' },
+  { icon: <IconTrendingUp size={24} color="var(--gold)" />, title: 'Track Progress', desc: 'See your last 5 attempts per subject — scores saved locally, no account needed' },
+  { icon: <IconLightbulb size={24} color="var(--gold)" />, title: 'Answer Explanations', desc: 'Understand why each answer is correct, not just memorize' },
+  { icon: <IconSmartphone size={24} color="var(--gold)" />, title: 'Mobile Friendly', desc: 'Review anytime, anywhere on any device — even on your phone' },
 ]
 
 export default function HomePage() {
@@ -36,7 +40,7 @@ export default function HomePage() {
 
       {/* HERO */}
       <section style={{ textAlign: 'center', padding: '80px 24px 60px', maxWidth: 700, margin: '0 auto' }}>
-        <div className="badge badge-gold" style={{ marginBottom: 20, fontSize: 12 }}>🎓 Community-Based · Free Forever · Negros Occidental</div>
+        <div className="badge badge-gold" style={{ marginBottom: 20, fontSize: 12 }}>Community-Based · Free Forever · Negros Occidental</div>
         <h1 style={{ fontSize: 'clamp(32px, 6vw, 56px)', fontWeight: 900, lineHeight: 1.1, marginBottom: 20 }}>
           Ace Your College<br /><span className="gold">Entrance Exam</span>
         </h1>
@@ -47,13 +51,22 @@ export default function HomePage() {
           <Link href="/exam" className="btn btn-primary" style={{ fontSize: 16, padding: '14px 32px' }}>Start Practicing Free →</Link>
           <Link href="#schools" className="btn btn-outline" style={{ fontSize: 16, padding: '14px 32px' }}>View Schools</Link>
         </div>
-        <p style={{ marginTop: 20, fontSize: 12, color: 'var(--muted)' }}>✅ No account needed &nbsp;·&nbsp; ✅ 100% Free &nbsp;·&nbsp; ✅ Anonymous</p>
+        <p style={{ marginTop: 20, fontSize: 12, color: 'var(--muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, flexWrap: 'wrap' }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><IconCheck size={12} color="#3fb950" /> No account needed</span>
+          <span>·</span>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><IconCheck size={12} color="#3fb950" /> 100% Free</span>
+          <span>·</span>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><IconCheck size={12} color="#3fb950" /> Anonymous</span>
+        </p>
       </section>
 
       {/* DISCLAIMER */}
       <div style={{ maxWidth: 700, margin: '0 auto 60px', padding: '0 24px' }}>
-        <div style={{ background: 'rgba(201,168,76,0.06)', border: '1px solid rgba(201,168,76,0.2)', borderRadius: 10, padding: '14px 20px', fontSize: 12, color: 'var(--muted)', textAlign: 'center', lineHeight: 1.6 }}>
-          ⚠️ <strong style={{ color: 'var(--gold)' }}>Disclaimer:</strong> This is an independent, community-based practice reviewer. It is not affiliated with, endorsed by, or officially connected to any university or college mentioned in this platform. All practice questions are original and do not represent official exam content.
+        <div style={{ background: 'rgba(201,168,76,0.06)', border: '1px solid rgba(201,168,76,0.2)', borderRadius: 10, padding: '14px 20px', fontSize: 12, color: 'var(--muted)', lineHeight: 1.6 }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+            <IconAlertTriangle size={14} color="var(--gold)" style={{ flexShrink: 0, marginTop: 1 }} />
+            <span><strong style={{ color: 'var(--gold)' }}>Disclaimer:</strong> This is an independent, community-based practice reviewer. It is not affiliated with, endorsed by, or officially connected to any university or college mentioned in this platform. All practice questions are original and do not represent official exam content.</span>
+          </div>
         </div>
       </div>
 
@@ -92,7 +105,7 @@ export default function HomePage() {
             <div className="card school-card" style={{ cursor: 'pointer', background: 'rgba(201,168,76,0.04)', '--school-color': 'var(--gold)' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--gold)' }}>🌟 General Practice Mode</div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--gold)', display: 'flex', alignItems: 'center', gap: 8 }}><IconStar size={18} color="var(--gold)" /> General Practice Mode</div>
                   <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4 }}>Not sure which school? Practice all subjects that appear in most Negros entrance exams</div>
                 </div>
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end', maxWidth: 300 }}>
@@ -115,7 +128,7 @@ export default function HomePage() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
           {FEATURES.map(f => (
             <div key={f.title} className="card" style={{ display: 'flex', gap: 14 }}>
-              <div style={{ fontSize: 24, flexShrink: 0 }}>{f.icon}</div>
+              <div style={{ flexShrink: 0, display: 'flex', alignItems: 'flex-start', paddingTop: 2 }}>{f.icon}</div>
               <div>
                 <div style={{ fontWeight: 700, marginBottom: 4, fontSize: 15 }}>{f.title}</div>
                 <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.5 }}>{f.desc}</div>
@@ -128,7 +141,7 @@ export default function HomePage() {
       {/* CTA */}
       <section style={{ maxWidth: 600, margin: '0 auto', padding: '0 24px 100px', textAlign: 'center' }}>
         <div className="card" style={{ background: 'rgba(201,168,76,0.06)', borderColor: 'rgba(201,168,76,0.3)' }}>
-          <div style={{ fontSize: 40, marginBottom: 16 }}>🎓</div>
+          <div style={{ marginBottom: 16 }}><IconAward size={48} color="var(--gold)" /></div>
           <h2 style={{ fontSize: 24, fontWeight: 800, marginBottom: 10 }}>Ready to Start Reviewing?</h2>
           <p className="muted" style={{ fontSize: 14, marginBottom: 24, lineHeight: 1.6 }}>No account needed. Just pick your school and start practicing. 100% free, always.</p>
           <Link href="/exam" className="btn btn-primary" style={{ fontSize: 16, padding: '14px 36px' }}>Start Now — It's Free →</Link>
@@ -137,7 +150,7 @@ export default function HomePage() {
 
       {/* FOOTER */}
       <footer style={{ borderTop: '1px solid var(--border)', padding: '24px', textAlign: 'center', fontSize: 12, color: 'var(--muted)' }}>
-        <p>NegrosREV — Built by a student from SUNN, for students of Negros Occidental 🌟</p>
+        <p>NegrosREV — Built by a student from SUNN, for students of Negros Occidental</p>
         <p style={{ marginTop: 6 }}>Independent community project · Not affiliated with any school · All questions are original</p>
       </footer>
 

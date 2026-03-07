@@ -2,18 +2,21 @@
 import { useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import {
+  IconPlus, IconFileText, IconFlask, IconGrid, IconFlag, IconGlobe, IconSettings, IconLayers,
+} from '../../components/Icons'
 
 const SCHOOL_CONFIG = {
   general: {
     name: 'General Practice',
     color: '#c9a84c',
     subjects: [
-      { id: 'math', name: 'Mathematics', icon: '➕', desc: 'Arithmetic, Algebra, Geometry, Word Problems' },
-      { id: 'english', name: 'English', icon: '📝', desc: 'Grammar, Reading Comprehension, Vocabulary' },
-      { id: 'science', name: 'Science', icon: '🔬', desc: 'Biology, Chemistry, Physics, Earth Science' },
-      { id: 'logic', name: 'Logic & Reasoning', icon: '🧩', desc: 'Patterns, Sequences, Analogies, Abstract Reasoning' },
-      { id: 'filipino', name: 'Filipino', icon: '🇵🇭', desc: 'Gramatika, Pagbasa, Bokabularyo' },
-      { id: 'genknowledge', name: 'General Knowledge', icon: '🌍', desc: 'Philippine History, Current Events, Geography' },
+      { id: 'math', name: 'Mathematics', icon: <IconPlus size={20} />, desc: 'Arithmetic, Algebra, Geometry, Word Problems' },
+      { id: 'english', name: 'English', icon: <IconFileText size={20} />, desc: 'Grammar, Reading Comprehension, Vocabulary' },
+      { id: 'science', name: 'Science', icon: <IconFlask size={20} />, desc: 'Biology, Chemistry, Physics, Earth Science' },
+      { id: 'logic', name: 'Logic & Reasoning', icon: <IconGrid size={20} />, desc: 'Patterns, Sequences, Analogies, Abstract Reasoning' },
+      { id: 'filipino', name: 'Filipino', icon: <IconFlag size={20} />, desc: 'Gramatika, Pagbasa, Bokabularyo' },
+      { id: 'genknowledge', name: 'General Knowledge', icon: <IconGlobe size={20} />, desc: 'Philippine History, Current Events, Geography' },
     ]
   },
   sunn: {
@@ -22,9 +25,9 @@ const SCHOOL_CONFIG = {
     exam: 'General Aptitude Test',
     color: '#3fb950',
     subjects: [
-      { id: 'logic', name: 'Logic & Reasoning', icon: '🧩', desc: 'Patterns, Shapes, Sequences, Odd One Out' },
-      { id: 'math', name: 'Mathematics', icon: '➕', desc: 'Basic Arithmetic, Word Problems' },
-      { id: 'genknowledge', name: 'General Knowledge', icon: '🌍', desc: 'Philippine History, Current Events' },
+      { id: 'logic', name: 'Logic & Reasoning', icon: <IconGrid size={20} />, desc: 'Patterns, Shapes, Sequences, Odd One Out' },
+      { id: 'math', name: 'Mathematics', icon: <IconPlus size={20} />, desc: 'Basic Arithmetic, Word Problems' },
+      { id: 'genknowledge', name: 'General Knowledge', icon: <IconGlobe size={20} />, desc: 'Philippine History, Current Events' },
     ]
   },
   tup: {
@@ -33,10 +36,10 @@ const SCHOOL_CONFIG = {
     exam: 'TUPSTAT',
     color: '#58a6ff',
     subjects: [
-      { id: 'math', name: 'Mathematics', icon: '➕', desc: 'Algebra, Geometry, Word Problems' },
-      { id: 'english', name: 'English', icon: '📝', desc: 'Reading Comprehension, Grammar, Writing' },
-      { id: 'science', name: 'Science', icon: '🔬', desc: 'Biology, Chemistry, Physics' },
-      { id: 'technical', name: 'Technical Reasoning', icon: '⚙️', desc: 'Mechanical reasoning, technical diagrams, spatial' },
+      { id: 'math', name: 'Mathematics', icon: <IconPlus size={20} />, desc: 'Algebra, Geometry, Word Problems' },
+      { id: 'english', name: 'English', icon: <IconFileText size={20} />, desc: 'Reading Comprehension, Grammar, Writing' },
+      { id: 'science', name: 'Science', icon: <IconFlask size={20} />, desc: 'Biology, Chemistry, Physics' },
+      { id: 'technical', name: 'Technical Reasoning', icon: <IconSettings size={20} />, desc: 'Mechanical reasoning, technical diagrams, spatial' },
     ]
   },
   chmsu: {
@@ -45,9 +48,9 @@ const SCHOOL_CONFIG = {
     exam: 'CHMSUET',
     color: '#c9a84c',
     subjects: [
-      { id: 'math', name: 'Mathematics', icon: '➕', desc: 'Algebra, Fractions, Word Problems' },
-      { id: 'english', name: 'English', icon: '📝', desc: 'Grammar, Reading Comprehension, Vocabulary' },
-      { id: 'science', name: 'Science', icon: '🔬', desc: 'General Science, Biology, Chemistry' },
+      { id: 'math', name: 'Mathematics', icon: <IconPlus size={20} />, desc: 'Algebra, Fractions, Word Problems' },
+      { id: 'english', name: 'English', icon: <IconFileText size={20} />, desc: 'Grammar, Reading Comprehension, Vocabulary' },
+      { id: 'science', name: 'Science', icon: <IconFlask size={20} />, desc: 'General Science, Biology, Chemistry' },
     ]
   },
   pnu: {
@@ -56,9 +59,9 @@ const SCHOOL_CONFIG = {
     exam: 'PNUAT',
     color: '#bc8cff',
     subjects: [
-      { id: 'math', name: 'Mathematics', icon: '➕', desc: 'Basic Math, Algebra, Geometry, Problem Solving' },
-      { id: 'english', name: 'English', icon: '📝', desc: 'Grammar, Language Proficiency, Reading' },
-      { id: 'genknowledge', name: 'General Info & History', icon: '🌍', desc: 'Philippine History, Government, Geography' },
+      { id: 'math', name: 'Mathematics', icon: <IconPlus size={20} />, desc: 'Basic Math, Algebra, Geometry, Problem Solving' },
+      { id: 'english', name: 'English', icon: <IconFileText size={20} />, desc: 'Grammar, Language Proficiency, Reading' },
+      { id: 'genknowledge', name: 'General Info & History', icon: <IconGlobe size={20} />, desc: 'Philippine History, Government, Geography' },
     ]
   },
   lasalle: {
@@ -67,10 +70,10 @@ const SCHOOL_CONFIG = {
     exam: 'Entrance Exam',
     color: '#f85149',
     subjects: [
-      { id: 'math', name: 'Mathematics', icon: '➕', desc: 'Algebra, Geometry, Word Problems' },
-      { id: 'english', name: 'English', icon: '📝', desc: 'Grammar, Reading, Vocabulary' },
-      { id: 'science', name: 'Science', icon: '🔬', desc: 'Biology, Chemistry, Physics' },
-      { id: 'logic', name: 'Abstract Reasoning', icon: '🧩', desc: 'Patterns, Sequences, Figure Series' },
+      { id: 'math', name: 'Mathematics', icon: <IconPlus size={20} />, desc: 'Algebra, Geometry, Word Problems' },
+      { id: 'english', name: 'English', icon: <IconFileText size={20} />, desc: 'Grammar, Reading, Vocabulary' },
+      { id: 'science', name: 'Science', icon: <IconFlask size={20} />, desc: 'Biology, Chemistry, Physics' },
+      { id: 'logic', name: 'Abstract Reasoning', icon: <IconGrid size={20} />, desc: 'Patterns, Sequences, Figure Series' },
     ]
   },
   csa: {
@@ -79,9 +82,9 @@ const SCHOOL_CONFIG = {
     exam: 'Entrance Exam',
     color: '#ff9500',
     subjects: [
-      { id: 'math', name: 'Mathematics', icon: '➕', desc: 'Algebra, Fractions, Word Problems' },
-      { id: 'english', name: 'English', icon: '📝', desc: 'Grammar, Reading Comprehension' },
-      { id: 'science', name: 'Science', icon: '🔬', desc: 'General Science topics' },
+      { id: 'math', name: 'Mathematics', icon: <IconPlus size={20} />, desc: 'Algebra, Fractions, Word Problems' },
+      { id: 'english', name: 'English', icon: <IconFileText size={20} />, desc: 'Grammar, Reading Comprehension' },
+      { id: 'science', name: 'Science', icon: <IconFlask size={20} />, desc: 'General Science topics' },
     ]
   },
 }
@@ -137,7 +140,7 @@ function ExamSetup() {
             {config.subjects.map(s => (
               <button key={s.id} onClick={() => setSelectedSubject(s.id)}
                 style={{ textAlign: 'left', padding: '14px 16px', borderRadius: 10, border: `1px solid ${selectedSubject === s.id ? config.color : 'var(--border)'}`, background: selectedSubject === s.id ? config.color + '15' : 'var(--card)', cursor: 'pointer', transition: 'all 0.15s' }}>
-                <div style={{ fontSize: 20, marginBottom: 6 }}>{s.icon}</div>
+              <div style={{ fontSize: 20, marginBottom: 6 }}>{s.icon}</div>
                 <div style={{ fontWeight: 700, fontSize: 14, color: selectedSubject === s.id ? config.color : 'var(--text)' }}>{s.name}</div>
                 <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 3, lineHeight: 1.4 }}>{s.desc}</div>
               </button>
@@ -145,7 +148,7 @@ function ExamSetup() {
             {/* Full mock exam option */}
             <button onClick={() => setSelectedSubject('all')}
               style={{ textAlign: 'left', padding: '14px 16px', borderRadius: 10, border: `1px solid ${selectedSubject === 'all' ? config.color : 'var(--border)'}`, background: selectedSubject === 'all' ? config.color + '15' : 'var(--card)', cursor: 'pointer', transition: 'all 0.15s' }}>
-              <div style={{ fontSize: 20, marginBottom: 6 }}>🎯</div>
+              <div style={{ marginBottom: 6 }}><IconLayers size={20} color={selectedSubject === 'all' ? config.color : 'var(--muted)'} /></div>
               <div style={{ fontWeight: 700, fontSize: 14, color: selectedSubject === 'all' ? config.color : 'var(--text)' }}>Full Mock Exam</div>
               <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 3, lineHeight: 1.4 }}>All subjects combined — simulates real exam</div>
             </button>
