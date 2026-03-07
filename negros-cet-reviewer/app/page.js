@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import ThemeToggle from '../components/ThemeToggle'
 import { supabase } from '../lib/supabase'
@@ -39,6 +39,13 @@ export default function HomePage() {
   const [fbName, setFbName] = useState('')
   const [fbMsg, setFbMsg] = useState('')
   const [fbState, setFbState] = useState('idle') // idle | sending | sent | error
+  const [questionCount, setQuestionCount] = useState(null)
+
+  useEffect(() => {
+    supabase.from('questions').select('id', { count: 'exact', head: true })
+      .eq('is_active', true)
+      .then(({ count }) => { if (count) setQuestionCount(count) })
+  }, [])
 
   const submitFeedback = async (e) => {
     e.preventDefault()
@@ -94,6 +101,31 @@ export default function HomePage() {
         </p>
       </section>
 
+      {/* STATS BAR */}
+      <div style={{ maxWidth: 700, margin: '0 auto 60px', padding: '0 24px' }}>
+        <div className="stats-bar">
+          <div className="stat-item">
+            <div className="stat-number">{questionCount !== null ? `${questionCount.toLocaleString()}+` : '—'}</div>
+            <div className="stat-label">Practice Questions</div>
+          </div>
+          <div className="stat-divider" />
+          <div className="stat-item">
+            <div className="stat-number">6</div>
+            <div className="stat-label">Schools Covered</div>
+          </div>
+          <div className="stat-divider" />
+          <div className="stat-item">
+            <div className="stat-number">100%</div>
+            <div className="stat-label">Free, No Ads</div>
+          </div>
+          <div className="stat-divider" />
+          <div className="stat-item">
+            <div className="stat-number">0</div>
+            <div className="stat-label">Signups Required</div>
+          </div>
+        </div>
+      </div>
+
       {/* DISCLAIMER */}
       <div style={{ maxWidth: 700, margin: '0 auto 60px', padding: '0 24px' }}>
         <div style={{ background: 'rgba(201,168,76,0.06)', border: '1px solid rgba(201,168,76,0.2)', borderRadius: 10, padding: '14px 20px', fontSize: 12, color: 'var(--muted)', lineHeight: 1.6 }}>
@@ -105,7 +137,8 @@ export default function HomePage() {
       </div>
 
       {/* SCHOOLS */}
-      <section id="schools" style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px 80px' }}>
+      <section id="schools" style={{ background: 'var(--section-alt)', padding: '64px 0 80px' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px' }}>
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
           <h2 style={{ fontSize: 28, fontWeight: 800, marginBottom: 8 }}>Supported Schools</h2>
           <p className="muted" style={{ fontSize: 14 }}>Choose your target school and practice with tailored questions</p>
@@ -151,10 +184,12 @@ export default function HomePage() {
             </div>
           </Link>
         </div>
+        </div>
       </section>
 
       {/* FEATURES */}
-      <section style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px 80px' }}>
+      <section style={{ padding: '64px 0 80px' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px' }}>
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
           <h2 style={{ fontSize: 28, fontWeight: 800, marginBottom: 8 }}>Everything You Need to Prepare</h2>
           <p className="muted" style={{ fontSize: 14 }}>Built with features that actually help you pass</p>
@@ -170,15 +205,16 @@ export default function HomePage() {
             </div>
           ))}
         </div>
+        </div>
       </section>
-
-      {/* CTA */}
-      <section style={{ maxWidth: 600, margin: '0 auto', padding: '0 24px 60px', textAlign: 'center' }}>
+      <section style={{ background: 'var(--section-alt)', padding: '64px 24px 64px' }}>
+        <div style={{ maxWidth: 600, margin: '0 auto', textAlign: 'center' }}>
         <div className="card" style={{ background: 'rgba(201,168,76,0.06)', borderColor: 'rgba(201,168,76,0.3)' }}>
           <div style={{ marginBottom: 16 }}><IconAward size={48} color="var(--gold)" /></div>
           <h2 style={{ fontSize: 24, fontWeight: 800, marginBottom: 10 }}>Ready to Start Reviewing?</h2>
           <p className="muted" style={{ fontSize: 14, marginBottom: 24, lineHeight: 1.6 }}>No account needed. Just pick your school and start practicing. 100% free, always.</p>
           <Link href="/exam" className="btn btn-primary" style={{ fontSize: 16, padding: '14px 36px' }}>Start Now — It's Free →</Link>
+        </div>
         </div>
       </section>
 
