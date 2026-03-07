@@ -68,13 +68,7 @@ export default function HomePage() {
           <span style={{ fontSize: 22, fontWeight: 900, color: 'var(--gold)' }}>NegrosREV</span>
           <span className="badge badge-gold">FREE</span>
         </div>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-          <ThemeToggle />
-          <Link href="/exam" className="btn btn-primary nav-cta">
-            <span className="nav-cta-label">Start Reviewing</span>
-            <span className="nav-cta-icon">→</span>
-          </Link>
-        </div>
+        <ThemeToggle />
       </nav>
 
       {/* HERO */}
