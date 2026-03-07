@@ -238,6 +238,42 @@ body {
   margin-bottom: 12px;
 }
 
+/* Schools swipeable grid */
+.schools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+/* Schools collapse wrapper — always visible on desktop */
+.schools-collapsible { display: block; }
+
+/* Schools toggle button — only shown on mobile (hidden via media query on desktop) */
+.schools-toggle {
+  display: none;
+  margin-top: 12px;
+  background: transparent;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  border-radius: 8px;
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+}
+.schools-toggle:hover { background: rgba(201,168,76,0.12); }
+
+/* Hero badge — View Schools button: hidden on desktop */
+.view-schools-hero-btn { display: none; }
+
+/* Feedback + Tip side-by-side layout */
+.feedback-tip-row {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
 /* School cards — hover works on both mouse and touch */
 .school-card {
   transition: border-color 0.2s;
@@ -291,7 +327,22 @@ body {
   .nav-cta { padding: 8px 12px !important; font-size: 13px !important; }
   .nav-cta-label { display: none !important; }
 
-  /* Exam room mobile tweaks */
+  /* Schools: collapse/expand on mobile */
+  .schools-toggle { display: inline-block; }
+  .schools-hidden { display: none !important; }
+  .view-schools-hero-btn { display: block !important; }
+
+  /* Hero badge: larger on mobile */
+  .hero-badge { font-size: 11px !important; letter-spacing: 0 !important; white-space: normal !important; line-height: 1.5 !important; }
+
+  /* Feedback + Tip: stack vertically */
+  .feedback-tip-row {
+    flex-direction: column !important;
+  }
+  .feedback-tip-row > .card:last-child {
+    width: 100% !important;
+  }
+
   .q-dot-strip {
     flex-wrap: nowrap !important;
     overflow-x: auto;

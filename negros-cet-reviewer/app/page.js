@@ -40,6 +40,7 @@ export default function HomePage() {
   const [fbMsg, setFbMsg] = useState('')
   const [fbState, setFbState] = useState('idle') // idle | sending | sent | error
   const [questionCount, setQuestionCount] = useState(null)
+  const [showSchools, setShowSchools] = useState(false)
 
   useEffect(() => {
     supabase.from('questions').select('id', { count: 'exact', head: true })
@@ -81,7 +82,7 @@ export default function HomePage() {
       {/* HERO */}
       <main id="main-content">
       <section style={{ textAlign: 'center', padding: 'clamp(40px, 8vw, 72px) 20px 56px', maxWidth: 680, margin: '0 auto' }}>
-        <div className="badge badge-gold" style={{ marginBottom: 20, fontSize: 12 }}>Community-Based · Free Forever · Negros Occidental</div>
+        <div className="badge badge-gold hero-badge" style={{ marginBottom: 20 }}>Community-Based · Free Forever · Negros Occidental</div>
         <h1 style={{ fontSize: 'clamp(32px, 6vw, 56px)', fontWeight: 900, lineHeight: 1.1, marginBottom: 20 }}>
           Ace Your College<br /><span className="gold">Entrance Exam</span>
         </h1>
@@ -90,7 +91,13 @@ export default function HomePage() {
         </p>
         <div className="hero-ctas" style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
           <Link href="/exam" className="btn btn-primary" style={{ fontSize: 16, padding: '14px 32px' }}>Start Practicing Free →</Link>
-          <Link href="#schools" className="btn btn-outline" style={{ fontSize: 16, padding: '14px 32px' }}>View Schools</Link>
+          <button
+            className="btn btn-outline view-schools-hero-btn"
+            onClick={() => {
+              setShowSchools(true)
+              document.getElementById('schools')?.scrollIntoView({ behavior: 'smooth' })
+            }}
+          >View Schools</button>
         </div>
         <p style={{ marginTop: 20, fontSize: 12, color: 'var(--muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, flexWrap: 'wrap' }}>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><IconCheck size={12} color="#3fb950" /> No account needed</span>
@@ -142,8 +149,16 @@ export default function HomePage() {
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
           <h2 style={{ fontSize: 28, fontWeight: 800, marginBottom: 8 }}>Supported Schools</h2>
           <p className="muted" style={{ fontSize: 14 }}>Choose your target school and practice with tailored questions</p>
+          <button
+            className="schools-toggle"
+            onClick={() => setShowSchools(s => !s)}
+            aria-expanded={showSchools}
+          >
+            {showSchools ? 'Hide Schools ▲' : 'View Schools ▼'}
+          </button>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
+        <div className={showSchools ? 'schools-collapsible' : 'schools-collapsible schools-hidden'}>
+        <div className="schools-grid">
           {SCHOOLS.map(school => (
             <Link key={school.name} href={`/exam?school=${school.name.toLowerCase().replace(/\s+/g, '')}`} style={{ textDecoration: 'none' }}>
               <div className="card school-card" style={{ cursor: 'pointer', height: '100%', '--school-color': school.color }}>
@@ -165,8 +180,6 @@ export default function HomePage() {
             </Link>
           ))}
         </div>
-
-        {/* General Practice */}
         <div style={{ marginTop: 16 }}>
           <Link href="/exam?school=general" style={{ textDecoration: 'none' }}>
             <div className="card school-card" style={{ cursor: 'pointer', background: 'rgba(201,168,76,0.04)', '--school-color': 'var(--gold)' }}>
@@ -186,8 +199,6 @@ export default function HomePage() {
         </div>
         </div>
       </section>
-
-      {/* FEATURES */}
       <section style={{ padding: '64px 0 80px' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px' }}>
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
@@ -218,76 +229,74 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* FEEDBACK */}
-      <section id="feedback" style={{ maxWidth: 600, margin: '0 auto', padding: '0 24px 60px' }}>
-        <div className="card">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-            <IconMessageSquare size={20} color="var(--gold)" />
-            <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>Feedback &amp; Suggestions</h2>
-          </div>
-          <p style={{ color: 'var(--muted)', fontSize: 13, marginBottom: 20, lineHeight: 1.6 }}>
-            Found a bug? Want more questions for a specific school? Have a suggestion? I'd love to hear from you!
-          </p>
+      {/* FEEDBACK + TIP JAR */}
+      <section style={{ maxWidth: 900, margin: '0 auto', padding: '0 24px 80px' }}>
+        <div className="feedback-tip-row">
 
-          {fbState === 'sent' ? (
-            <div style={{ textAlign: 'center', padding: '28px 16px', background: 'rgba(63,185,80,0.07)', borderRadius: 10, border: '1px solid rgba(63,185,80,0.2)' }}>
-              <IconCheck size={32} color="#3fb950" />
-              <div style={{ fontWeight: 700, marginTop: 10, marginBottom: 4 }}>Thank you!</div>
-              <div style={{ fontSize: 13, color: 'var(--muted)' }}>Your feedback was received. I appreciate it!</div>
-              <button onClick={() => setFbState('idle')} style={{ marginTop: 16, background: 'transparent', border: '1px solid var(--border)', borderRadius: 8, padding: '8px 20px', color: 'var(--text)', cursor: 'pointer', fontSize: 13 }}>Send another</button>
+          {/* Feedback */}
+          <div className="card" style={{ flex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+              <IconMessageSquare size={20} color="var(--gold)" />
+              <h2 style={{ fontSize: 18, fontWeight: 800, margin: 0 }}>Feedback &amp; Suggestions</h2>
             </div>
-          ) : (
-            <form onSubmit={submitFeedback}>
-              <input
-                value={fbName}
-                onChange={e => setFbName(e.target.value)}
-                placeholder="Your name (optional)"
-                maxLength={80}
-                style={INPUT_STYLE}
-              />
-              <textarea
-                value={fbMsg}
-                onChange={e => setFbMsg(e.target.value)}
-                placeholder="Write your message, bug report, or suggestion here..."
-                required
-                maxLength={1000}
-                rows={4}
-                style={{ ...INPUT_STYLE, resize: 'vertical', marginBottom: 12 }}
-              />
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                <span style={{ fontSize: 11, color: 'var(--muted)' }}>{fbMsg.length}/1000</span>
-                {fbState === 'error' && <span style={{ fontSize: 12, color: '#f85149' }}>Failed — please try again.</span>}
+            <p style={{ color: 'var(--muted)', fontSize: 13, marginBottom: 16, lineHeight: 1.6 }}>
+              Found a bug or have a suggestion? I'd love to hear from you!
+            </p>
+
+            {fbState === 'sent' ? (
+              <div style={{ textAlign: 'center', padding: '24px 16px', background: 'rgba(63,185,80,0.07)', borderRadius: 10, border: '1px solid rgba(63,185,80,0.2)' }}>
+                <IconCheck size={28} color="#3fb950" />
+                <div style={{ fontWeight: 700, marginTop: 10, marginBottom: 4 }}>Thank you!</div>
+                <div style={{ fontSize: 13, color: 'var(--muted)' }}>Your feedback was received.</div>
+                <button onClick={() => setFbState('idle')} style={{ marginTop: 14, background: 'transparent', border: '1px solid var(--border)', borderRadius: 8, padding: '7px 18px', color: 'var(--text)', cursor: 'pointer', fontSize: 13 }}>Send another</button>
               </div>
-              <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={fbState === 'sending' || !fbMsg.trim()}
-                style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
-              >
-                <IconSend size={14} />
-                {fbState === 'sending' ? 'Sending...' : 'Send Feedback'}
-              </button>
-            </form>
-          )}
-        </div>
-      </section>
-
-      {/* SUPPORT / TIP JAR */}
-      <section style={{ maxWidth: 600, margin: '0 auto', padding: '0 24px 80px', textAlign: 'center' }}>
-        <div className="card" style={{ borderColor: 'rgba(0,112,205,0.25)', background: 'rgba(0,112,205,0.04)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 8 }}>
-            <IconHeart size={18} color="#e85d75" />
-            <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>Support the Developer</h2>
+            ) : (
+              <form onSubmit={submitFeedback}>
+                <input
+                  value={fbName}
+                  onChange={e => setFbName(e.target.value)}
+                  placeholder="Your name (optional)"
+                  maxLength={80}
+                  style={INPUT_STYLE}
+                />
+                <textarea
+                  value={fbMsg}
+                  onChange={e => setFbMsg(e.target.value)}
+                  placeholder="Message, bug report, or suggestion..."
+                  required
+                  maxLength={1000}
+                  rows={3}
+                  style={{ ...INPUT_STYLE, resize: 'vertical', marginBottom: 10 }}
+                />
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                  <span style={{ fontSize: 11, color: 'var(--muted)' }}>{fbMsg.length}/1000</span>
+                  {fbState === 'error' && <span style={{ fontSize: 12, color: '#f85149' }}>Failed — try again.</span>}
+                </div>
+                <button type="submit" className="btn btn-primary" disabled={fbState === 'sending' || !fbMsg.trim()}
+                  style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                  <IconSend size={14} />
+                  {fbState === 'sending' ? 'Sending...' : 'Send Feedback'}
+                </button>
+              </form>
+            )}
           </div>
-          <p style={{ color: 'var(--muted)', fontSize: 13, marginBottom: 24, lineHeight: 1.6, maxWidth: 440, margin: '0 auto 24px' }}>
-            NegrosREV is free, no ads, built on weekends for my OJT. If it helped you study, a small tip is hugely appreciated — but totally optional!
-          </p>
 
-          <img
-            src="/gcash_qr.png"
-            alt="Scan to tip via GCash"
-            style={{ display: 'block', margin: '8px auto 0', borderRadius: 16, maxWidth: 240, width: '100%', boxShadow: '0 4px 20px rgba(0,0,0,0.18)' }}
-          />
+          {/* GCash Tip */}
+          <div className="card" style={{ flex: '0 0 auto', width: 220, textAlign: 'center', borderColor: 'rgba(0,112,205,0.25)', background: 'rgba(0,112,205,0.04)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 10 }}>
+              <IconHeart size={15} color="#e85d75" />
+              <span style={{ fontWeight: 800, fontSize: 15 }}>Support</span>
+            </div>
+            <p style={{ color: 'var(--muted)', fontSize: 12, marginBottom: 12, lineHeight: 1.5 }}>
+              If it helped you study, a small tip is appreciated — totally optional!
+            </p>
+            <img
+              src="/gcash_qr.png"
+              alt="Scan to tip via GCash"
+              style={{ display: 'block', margin: '0 auto', borderRadius: 12, width: '100%', maxWidth: 160, boxShadow: '0 4px 16px rgba(0,0,0,0.15)' }}
+            />
+          </div>
+
         </div>
       </section>
 
@@ -322,31 +331,13 @@ export default function HomePage() {
             </div>
 
             {/* Connect */}
-            <div className="footer-col">
-              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 14 }}>Made by</div>
-              <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 14, lineHeight: 1.6 }}>
-                Carlos Miguel Torres<br />
-                <span style={{ fontSize: 12 }}>Student · SUNN · Negros Occidental</span>
-              </p>
-              <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
-                <a
-                  href="https://www.facebook.com/JenxxAi"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="social-icon-btn"
-                  aria-label="Facebook"
-                  title="Facebook"
-                >
+            <div className="footer-col" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 14 }}>Connect</div>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <a href="https://www.facebook.com/JenxxAi" target="_blank" rel="noopener noreferrer" className="social-icon-btn" aria-label="Facebook" title="Facebook">
                   <IconFacebook size={16} color="#1877f2" />
                 </a>
-                <a
-                  href="https://www.linkedin.com/in/carlos-miguel-torres-2644a9332/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="social-icon-btn"
-                  aria-label="LinkedIn"
-                  title="LinkedIn"
-                >
+                <a href="https://www.linkedin.com/in/carlos-miguel-torres-2644a9332/" target="_blank" rel="noopener noreferrer" className="social-icon-btn" aria-label="LinkedIn" title="LinkedIn">
                   <IconLinkedIn size={16} color="#0a66c2" />
                 </a>
               </div>
