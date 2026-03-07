@@ -73,7 +73,7 @@ export default function HomePage() {
 
       {/* HERO */}
       <main id="main-content">
-      <section style={{ textAlign: 'center', padding: '72px 20px 56px', maxWidth: 680, margin: '0 auto' }}>
+      <section style={{ textAlign: 'center', padding: 'clamp(40px, 8vw, 72px) 20px 56px', maxWidth: 680, margin: '0 auto' }}>
         <div className="badge badge-gold" style={{ marginBottom: 20, fontSize: 12 }}>Community-Based · Free Forever · Negros Occidental</div>
         <h1 style={{ fontSize: 'clamp(32px, 6vw, 56px)', fontWeight: 900, lineHeight: 1.1, marginBottom: 20 }}>
           Ace Your College<br /><span className="gold">Entrance Exam</span>

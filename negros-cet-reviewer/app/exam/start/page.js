@@ -515,20 +515,21 @@ function ExamRoom() {
               </span>
             )}
           </div>
-          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <button
               onClick={toggleFlag}
               aria-label={flagged[current] ? 'Remove flag from this question' : 'Flag this question for review'}
               aria-pressed={!!flagged[current]}
-              style={{ background: flagged[current] ? 'rgba(201,168,76,0.2)' : 'var(--card)', border: '1px solid var(--border)', borderRadius: 6, padding: '6px 10px', cursor: 'pointer', fontSize: 13, color: flagged[current] ? 'var(--gold)' : 'var(--muted)', display: 'flex', alignItems: 'center', gap: 5 }}>
+              className="flag-btn"
+              style={{ background: flagged[current] ? 'rgba(201,168,76,0.2)' : 'var(--card)', border: `1px solid ${flagged[current] ? 'var(--gold)' : 'var(--border)'}`, borderRadius: 6, padding: '6px 10px', cursor: 'pointer', color: flagged[current] ? 'var(--gold)' : 'var(--muted)', display: 'flex', alignItems: 'center', gap: 5 }}>
               <IconFlag size={14} color={flagged[current] ? 'var(--gold)' : 'var(--muted)'} />
-              {flagged[current] ? 'Flagged' : 'Flag'}
+              <span className="flag-text">{flagged[current] ? 'Flagged' : 'Flag'}</span>
             </button>
             <div
               role="timer"
               aria-label={`Time remaining: ${formatTime(timeLeft)}`}
-              style={{ background: timeWarning ? 'rgba(248,81,73,0.15)' : 'var(--card)', border: `1px solid ${timeWarning ? '#f85149' : 'var(--border)'}`, borderRadius: 8, padding: '8px 14px', fontWeight: 700, fontSize: 15, color: timeWarning ? '#f85149' : 'var(--text)', fontVariantNumeric: 'tabular-nums', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <IconClock size={14} color={timeWarning ? '#f85149' : 'var(--text)'} />
+              style={{ background: timeWarning ? 'rgba(248,81,73,0.15)' : 'var(--card)', border: `1px solid ${timeWarning ? '#f85149' : 'var(--border)'}`, borderRadius: 8, padding: '7px 12px', fontWeight: 700, fontSize: 14, color: timeWarning ? '#f85149' : 'var(--text)', fontVariantNumeric: 'tabular-nums', display: 'flex', alignItems: 'center', gap: 5 }}>
+              <IconClock size={13} color={timeWarning ? '#f85149' : 'var(--text)'} />
               {formatTime(timeLeft)}
             </div>
           </div>
@@ -584,8 +585,30 @@ function ExamRoom() {
           </div>
         )}
 
-        {/* Navigation */}
-        <div style={{ display: 'flex', gap: 10 }}>
+        {/* Question dot strip — scrollable on mobile */}
+        <div className="q-dot-strip" role="navigation" aria-label="Question navigation">
+          {questions.map((_, i) => (
+            <button key={i}
+              aria-label={`Go to question ${i + 1}${flagged[i] ? ' (flagged)' : ''}${answers[i] !== undefined ? ' (answered)' : ''}`}
+              aria-current={i === current ? 'true' : undefined}
+              className="q-dot"
+              style={{
+                background: i === current ? 'var(--gold)' : answers[i] !== undefined ? 'rgba(63,185,80,0.3)' : 'var(--card)',
+                color: i === current ? '#0d1117' : answers[i] !== undefined ? '#3fb950' : 'var(--muted)',
+                border: `1px solid ${i === current ? 'var(--gold)' : flagged[i] ? 'var(--gold)' : 'var(--border)'}`,
+                boxShadow: flagged[i] ? '0 0 0 2px rgba(201,168,76,0.35)' : 'none',
+              }}
+              onClick={() => {
+                if (mode === 'exam') { setCurrent(i) }
+                else if (!showAnswer) { setCurrent(i); setShowAnswer(answers[i] !== undefined) }
+              }}>
+              {i + 1}
+            </button>
+          ))}
+        </div>
+
+        {/* Navigation — sticky on mobile */}
+        <div className="nav-actions">
           {mode === 'exam' ? (
             <button className="btn btn-primary" onClick={handleNext} style={{ width: '100%' }}>
               {current + 1 >= questions.length ? 'Submit All →' : 'Next →'}
@@ -605,26 +628,8 @@ function ExamRoom() {
           )}
         </div>
 
-        <div role="navigation" aria-label="Question navigation" style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 20, justifyContent: 'center' }}>
-          {questions.map((_, i) => (
-            <button key={i} aria-label={`Go to question ${i + 1}${flagged[i] ? ' (flagged)' : ''}${answers[i] !== undefined ? ' (answered)' : ''}`} aria-current={i === current ? 'true' : undefined} style={{
-              width: 44, height: 44, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 12, fontWeight: 700, cursor: 'pointer',
-              background: i === current ? 'var(--gold)' : answers[i] !== undefined ? 'rgba(63,185,80,0.3)' : 'var(--card)',
-              color: i === current ? '#0d1117' : answers[i] !== undefined ? '#3fb950' : 'var(--muted)',
-              border: `1px solid ${i === current ? 'var(--gold)' : flagged[i] ? 'var(--gold)' : 'var(--border)'}`,
-              boxShadow: flagged[i] ? '0 0 0 2px rgba(201,168,76,0.4)' : 'none',
-            }} onClick={() => {
-              if (mode === 'exam') { setCurrent(i) }
-              else if (!showAnswer) { setCurrent(i); setShowAnswer(answers[i] !== undefined) }
-            }}>
-              {i + 1}
-            </button>
-          ))}
-        </div>
-
-        {/* Keyboard hints */}
-        <div style={{ textAlign: 'center', fontSize: 11, color: 'var(--muted)', marginTop: 16, opacity: 0.55, display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
+        {/* Keyboard hints — desktop only */}
+        <div className="kbd-hints">
           <span><kbd>A</kbd> <kbd>B</kbd> <kbd>C</kbd> <kbd>D</kbd> select</span>
           <span><kbd>Space</kbd> next</span>
           <span><kbd>F</kbd> flag</span>

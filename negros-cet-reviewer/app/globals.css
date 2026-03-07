@@ -288,6 +288,29 @@ body {
   /* Navbar CTA on mobile: hide full label, show compact */
   .nav-cta { padding: 8px 12px !important; font-size: 13px !important; }
   .nav-cta-label { display: none !important; }
+
+  /* Exam room mobile tweaks */
+  .q-dot-strip {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    justify-content: flex-start !important;
+    padding-bottom: 6px;
+    scroll-snap-type: x mandatory;
+  }
+  .q-dot {
+    width: 36px !important;
+    height: 36px !important;
+    scroll-snap-align: start;
+  }
+  .nav-actions {
+    position: sticky;
+    bottom: 16px;
+    z-index: 50;
+    margin-top: 12px;
+  }
+  .kbd-hints { display: none !important; }
+  .flag-text { display: none !important; }
 }
 
 /* Social icon buttons in footer */
@@ -316,9 +339,6 @@ body {
   gap: 40px;
   align-items: start;
 }
-
-.footer-col { /* no extra styles needed on desktop */ }
-.footer-col-brand { /* centered handled by mobile only */ }
 
 .footer-links-grid {
   display: flex;
