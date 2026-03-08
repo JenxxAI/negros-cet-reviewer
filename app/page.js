@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import ThemeToggle from '../components/ThemeToggle'
 import CoinButton from '../components/CoinButton'
+import TourModal from '../components/TourModal'
 import { supabase } from '../lib/supabase'
 import { SCHOOL_LIST as SCHOOLS } from '../lib/schools'
 import {
@@ -70,6 +71,7 @@ export default function HomePage() {
 
   return (
     <div style={{ minHeight: '100vh' }}>
+      <TourModal />
       {/* Skip to main content — keyboard accessibility */}
       <a href="#main-content" className="skip-link">Skip to content</a>
 
