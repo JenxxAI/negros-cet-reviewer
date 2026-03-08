@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import ThemeToggle from '../components/ThemeToggle'
+import CoinButton from '../components/CoinButton'
 import { supabase } from '../lib/supabase'
 import { SCHOOL_LIST as SCHOOLS } from '../lib/schools'
 import {
@@ -301,32 +302,15 @@ export default function HomePage() {
                     { amount: '₱10', icon: <IconZap size={14} color="#0070cd" />, label: 'Cool, I like it!', color: '#0070cd' },
                     { amount: '₱20', icon: <IconCoffee size={14} color="#8b5cf6" />, label: 'It helped me!', color: '#8b5cf6' },
                     { amount: '₱50', icon: <IconSparkle size={14} color="#c9a84c" />, label: "You're amazing!", color: '#c9a84c' },
-                  ].map((tier, i) => (
-                    <button
+                  ].map((tier) => (
+                    <CoinButton
                       key={tier.amount}
-                      onClick={() => setTipTier(tier)}
-                      className="tier-btn"
-                      style={{
-                        background: 'var(--card2)',
-                        border: '1px solid var(--border)',
-                        borderRadius: 10,
-                        padding: '9px 12px',
-                        cursor: 'pointer',
-                        fontSize: 13,
-                        color: 'var(--text)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        transition: 'all 0.18s',
-                        fontFamily: 'inherit',
-                        animationDelay: `${i * 80}ms`,
-                      }}
-                      onMouseEnter={e => { e.currentTarget.style.borderColor = tier.color; e.currentTarget.style.background = tier.color + '18' }}
-                      onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'var(--card2)' }}
-                    >
-                      <span style={{ fontWeight: 700, color: tier.color }}>{tier.amount}</span>
-                      <span style={{ color: 'var(--muted)', fontSize: 11, display: 'flex', alignItems: 'center', gap: 4 }}>{tier.icon} {tier.label}</span>
-                    </button>
+                      amount={tier.amount}
+                      label={tier.label}
+                      icon={tier.icon}
+                      color={tier.color}
+                      onLanded={() => setTipTier(tier)}
+                    />
                   ))}
                 </div>
               </>
