@@ -140,5 +140,16 @@ export async function POST(request) {
     return Response.json({ error: error.message }, { status: 500 })
   }
 
+  // Structured audit log — captured by Vercel log drains and dashboard
+  console.log(JSON.stringify({
+    event: 'question_added',
+    id: data.id,
+    school: school_slug,
+    subject: subject_slug,
+    difficulty,
+    ip,
+    ts: new Date().toISOString(),
+  }))
+
   return Response.json({ success: true, id: data.id })
 }

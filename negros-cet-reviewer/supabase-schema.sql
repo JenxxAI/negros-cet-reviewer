@@ -149,14 +149,71 @@ create index if not exists idx_questions_subject_difficulty on questions(subject
 create index if not exists idx_subjects_school_id on subjects(school_id);
 create index if not exists idx_results_session_id on results(session_id);
 create index if not exists idx_sessions_user_id on sessions(user_id);
+-- Partial index covering the most common query: active questions by school
+create index if not exists idx_questions_school_active
+  on questions(school_id) where is_active = true;
+
+-- ============================================
+-- Random question sampler (used by exam page)
+-- Returns randomized questions for a given school/subject/difficulty.
+-- ============================================
+
+create or replace function get_random_questions(
+  p_school_id   uuid,
+  p_subject_id  uuid,
+  p_difficulty  text,
+  p_count       int
+)
+returns table (
+  id             uuid,
+  question_text  text,
+  choice_a       text,
+  choice_b       text,
+  choice_c       text,
+  choice_d       text,
+  correct_answer char,
+  explanation    text,
+  subject_slug   text,
+  subject_name   text
+)
+language sql
+security definer
+as $$
+  select
+    q.id,
+    q.question_text,
+    q.choice_a,
+    q.choice_b,
+    q.choice_c,
+    q.choice_d,
+    q.correct_answer,
+    q.explanation,
+    s.slug  as subject_slug,
+    s.name  as subject_name
+  from questions q
+  left join subjects s on s.id = q.subject_id
+  where q.school_id = p_school_id
+    and (p_subject_id is null or q.subject_id = p_subject_id)
+    and (p_difficulty = 'mixed' or q.difficulty = p_difficulty)
+    and q.is_active = true
+  order by random()
+  limit p_count;
+$$;
 
 -- Feedback table (user comments and suggestions)
 create table if not exists feedback (
   id uuid primary key default gen_random_uuid(),
-  name text,
+  name text check (name is null or length(name) <= 100),
   message text not null check (length(message) > 0 and length(message) <= 1000),
   created_at timestamptz default now()
 );
+
+-- Add name length constraint to existing DB (idempotent)
+do $$ begin
+  alter table feedback add constraint feedback_name_length
+    check (name is null or length(name) <= 100);
+exception when duplicate_object then null;
+end $$;
 
 alter table feedback enable row level security;
 

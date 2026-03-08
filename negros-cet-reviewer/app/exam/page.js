@@ -2,11 +2,14 @@
 import { useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { SCHOOL_META } from '../../lib/schools'
 import {
   IconPlus, IconFileText, IconFlask, IconGrid, IconFlag, IconGlobe, IconSettings, IconLayers,
   IconEye, IconEyeOff, IconChevronLeft,
 } from '../../components/Icons'
 
+// SCHOOL_CONFIG merges shared metadata (name/full/exam/color from lib/schools.js)
+// with exam-page-specific subject configs (icon + desc).
 const SCHOOL_CONFIG = {
   general: {
     name: 'General Practice',
@@ -21,10 +24,7 @@ const SCHOOL_CONFIG = {
     ]
   },
   sunn: {
-    name: 'SUNN',
-    full: 'State University of Northern Negros',
-    exam: 'General Aptitude Test',
-    color: '#3fb950',
+    ...SCHOOL_META.sunn,
     subjects: [
       { id: 'logic', name: 'Logic & Reasoning', icon: <IconGrid size={20} />, desc: 'Patterns, Shapes, Sequences, Odd One Out' },
       { id: 'math', name: 'Mathematics', icon: <IconPlus size={20} />, desc: 'Basic Arithmetic, Word Problems' },
@@ -32,10 +32,7 @@ const SCHOOL_CONFIG = {
     ]
   },
   tup: {
-    name: 'TUP',
-    full: 'Technological University of the Philippines',
-    exam: 'TUPSTAT',
-    color: '#58a6ff',
+    ...SCHOOL_META.tup,
     subjects: [
       { id: 'math', name: 'Mathematics', icon: <IconPlus size={20} />, desc: 'Algebra, Geometry, Word Problems' },
       { id: 'english', name: 'English', icon: <IconFileText size={20} />, desc: 'Reading Comprehension, Grammar, Writing' },
@@ -44,10 +41,7 @@ const SCHOOL_CONFIG = {
     ]
   },
   chmsu: {
-    name: 'CHMSU',
-    full: 'Carlos Hilado Memorial State University',
-    exam: 'CHMSUET',
-    color: '#c9a84c',
+    ...SCHOOL_META.chmsu,
     subjects: [
       { id: 'math', name: 'Mathematics', icon: <IconPlus size={20} />, desc: 'Algebra, Fractions, Word Problems' },
       { id: 'english', name: 'English', icon: <IconFileText size={20} />, desc: 'Grammar, Reading Comprehension, Vocabulary' },
@@ -55,10 +49,7 @@ const SCHOOL_CONFIG = {
     ]
   },
   pnu: {
-    name: 'PNU',
-    full: 'Philippine Normal University',
-    exam: 'PNUAT',
-    color: '#bc8cff',
+    ...SCHOOL_META.pnu,
     subjects: [
       { id: 'math', name: 'Mathematics', icon: <IconPlus size={20} />, desc: 'Basic Math, Algebra, Geometry, Problem Solving' },
       { id: 'english', name: 'English', icon: <IconFileText size={20} />, desc: 'Grammar, Language Proficiency, Reading' },
@@ -66,10 +57,7 @@ const SCHOOL_CONFIG = {
     ]
   },
   lasalle: {
-    name: 'La Salle',
-    full: 'La Salle College',
-    exam: 'Entrance Exam',
-    color: '#f85149',
+    ...SCHOOL_META.lasalle,
     subjects: [
       { id: 'math', name: 'Mathematics', icon: <IconPlus size={20} />, desc: 'Algebra, Geometry, Word Problems' },
       { id: 'english', name: 'English', icon: <IconFileText size={20} />, desc: 'Grammar, Reading, Vocabulary' },
@@ -78,10 +66,7 @@ const SCHOOL_CONFIG = {
     ]
   },
   csa: {
-    name: 'CSA',
-    full: 'Colegio San Agustin',
-    exam: 'Entrance Exam',
-    color: '#ff9500',
+    ...SCHOOL_META.csa,
     subjects: [
       { id: 'math', name: 'Mathematics', icon: <IconPlus size={20} />, desc: 'Algebra, Fractions, Word Problems' },
       { id: 'english', name: 'English', icon: <IconFileText size={20} />, desc: 'Grammar, Reading Comprehension' },

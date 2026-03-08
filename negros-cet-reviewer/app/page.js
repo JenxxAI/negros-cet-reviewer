@@ -3,20 +3,12 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import ThemeToggle from '../components/ThemeToggle'
 import { supabase } from '../lib/supabase'
+import { SCHOOL_LIST as SCHOOLS } from '../lib/schools'
 import {
   IconTarget, IconClock, IconBarChart, IconTrendingUp, IconLightbulb, IconSmartphone,
   IconCheck, IconAlertTriangle, IconAward, IconStar, IconFacebook, IconLinkedIn,
   IconHeart, IconMessageSquare, IconSend, IconZap, IconCoffee, IconSparkle,
 } from '../components/Icons'
-
-const SCHOOLS = [
-  { name: 'SUNN', full: 'State University of Northern Negros', exam: 'General Aptitude Test', subjects: ['Logic', 'Math', 'Gen. Knowledge'], color: '#3fb950' },
-  { name: 'TUP', full: 'Technological University of the Philippines', exam: 'TUPSTAT', subjects: ['Math', 'English', 'Science', 'Technical'], color: '#58a6ff' },
-  { name: 'CHMSU', full: 'Carlos Hilado Memorial State University', exam: 'CHMSUET', subjects: ['Math', 'English', 'Science'], color: '#c9a84c' },
-  { name: 'PNU', full: 'Philippine Normal University', exam: 'PNUAT', subjects: ['Math', 'English', 'Gen. Info'], color: '#bc8cff' },
-  { name: 'La Salle', full: 'La Salle College', exam: 'Entrance Exam', subjects: ['Math', 'English', 'Science', 'Logic'], color: '#f85149' },
-  { name: 'CSA', full: 'Colegio San Agustin', exam: 'Entrance Exam', subjects: ['Math', 'English', 'Science'], color: '#ff9500' },
-]
 
 const FEATURES = [
   { icon: <IconTarget size={24} color="var(--gold)" />, title: 'School-Specific Exams', desc: 'Practice with questions tailored to your target school\'s exam format' },
@@ -39,6 +31,7 @@ export default function HomePage() {
   const [fbName, setFbName] = useState('')
   const [fbMsg, setFbMsg] = useState('')
   const [fbState, setFbState] = useState('idle') // idle | sending | sent | error
+  const [lastSubmitTime, setLastSubmitTime] = useState(0)
   const [questionCount, setQuestionCount] = useState(null)
   const [showSchools, setShowSchools] = useState(false)
   const [tipTier, setTipTier] = useState(null)
@@ -52,17 +45,25 @@ export default function HomePage() {
   const submitFeedback = async (e) => {
     e.preventDefault()
     if (!fbMsg.trim()) return
-    setFbState('sending')
-    const { error } = await supabase.from('feedback').insert({
-      name: fbName.trim() || null,
-      message: fbMsg.trim(),
-    })
-    if (error) {
+    // Client-side cooldown: 60 s between submissions
+    if (lastSubmitTime > 0 && Date.now() - lastSubmitTime < 60_000) {
       setFbState('error')
-    } else {
+      return
+    }
+    setFbState('sending')
+    try {
+      const res = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: fbName.trim() || null, message: fbMsg.trim() }),
+      })
+      if (!res.ok) throw new Error()
       setFbState('sent')
+      setLastSubmitTime(Date.now())
       setFbName('')
       setFbMsg('')
+    } catch {
+      setFbState('error')
     }
   }
 
