@@ -8,7 +8,7 @@ import { SCHOOL_LIST as SCHOOLS } from '../lib/schools'
 import {
   IconTarget, IconClock, IconBarChart, IconTrendingUp, IconLightbulb, IconSmartphone,
   IconCheck, IconAlertTriangle, IconAward, IconStar, IconFacebook, IconLinkedIn,
-  IconHeart, IconMessageSquare, IconSend, IconZap, IconCoffee, IconSparkle,
+  IconHeart, IconMessageSquare, IconSend,
 } from '../components/Icons'
 
 const FEATURES = [
@@ -285,7 +285,7 @@ export default function HomePage() {
             )}
           </div>
 
-          {/* GCash Tip — interactive tier picker */}
+          {/* GCash Tip — single coin button */}
           <div className="card tip-card" style={{ flex: '0 0 auto', width: 220, textAlign: 'center', borderColor: tipTier ? 'rgba(0,112,205,0.5)' : 'rgba(0,112,205,0.25)', background: tipTier ? 'rgba(0,112,205,0.07)' : 'rgba(0,112,205,0.04)', transition: 'all 0.3s' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 8 }}>
               <IconHeart size={15} color="#e85d75" />
@@ -295,34 +295,25 @@ export default function HomePage() {
             {!tipTier ? (
               <>
                 <p style={{ color: 'var(--muted)', fontSize: 12, marginBottom: 14, lineHeight: 1.5 }}>
-                  Pick a vibe and I'll show you where to send it 😄
+                  If this helped you, a small tip means a lot 😊
                 </p>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {[
-                    { amount: '₱10', icon: <IconZap size={14} color="#0070cd" />, label: 'Cool, I like it!', color: '#0070cd' },
-                    { amount: '₱20', icon: <IconCoffee size={14} color="#8b5cf6" />, label: 'It helped me!', color: '#8b5cf6' },
-                    { amount: '₱50', icon: <IconSparkle size={14} color="#c9a84c" />, label: "You're amazing!", color: '#c9a84c' },
-                  ].map((tier) => (
-                    <CoinButton
-                      key={tier.amount}
-                      amount={tier.amount}
-                      label={tier.label}
-                      icon={tier.icon}
-                      color={tier.color}
-                      onLanded={() => setTipTier(tier)}
-                    />
-                  ))}
-                </div>
+                <CoinButton
+                  amount="Send a tip"
+                  label="via GCash"
+                  icon={<IconHeart size={13} color="#e85d75" />}
+                  color="#0070cd"
+                  onLanded={() => setTipTier(true)}
+                />
               </>
             ) : (
               <div className="tip-reveal">
                 <div style={{ marginBottom: 6, display: 'flex', justifyContent: 'center' }}>
-                  <span style={{ display: 'inline-flex', padding: 10, borderRadius: '50%', background: (tipTier?.color || '#0070cd') + '18', animation: 'tipIconPop 0.4s cubic-bezier(0.34,1.56,0.64,1) both' }}>
-                    {tipTier?.icon}
+                  <span style={{ display: 'inline-flex', padding: 10, borderRadius: '50%', background: 'rgba(232,93,117,0.12)', animation: 'tipIconPop 0.4s cubic-bezier(0.34,1.56,0.64,1) both' }}>
+                    <IconHeart size={18} color="#e85d75" />
                   </span>
                 </div>
-                <div style={{ fontWeight: 800, fontSize: 13, marginBottom: 2 }}>{tipTier.label}</div>
-                <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 10 }}>Scan below to send {tipTier.amount}</div>
+                <div style={{ fontWeight: 800, fontSize: 13, marginBottom: 2 }}>Thank you! 🙏</div>
+                <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 10 }}>Scan below to tip via GCash</div>
                 <img
                   src="/gcash_qr.png"
                   alt="Scan to tip via GCash"
@@ -332,7 +323,7 @@ export default function HomePage() {
                   onClick={() => setTipTier(null)}
                   style={{ background: 'transparent', border: '1px solid var(--border)', borderRadius: 8, padding: '5px 14px', color: 'var(--muted)', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit' }}
                 >
-                  ← change amount
+                  ← hide
                 </button>
               </div>
             )}
