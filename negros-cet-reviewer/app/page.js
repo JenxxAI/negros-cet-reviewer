@@ -300,20 +300,13 @@ export default function HomePage() {
                 <CoinButton
                   amount="Send a Tip"
                   label="via GCash 🇵🇭"
-                  icon={<IconHeart size={16} color="#e85d75" style={{ flexShrink: 0 }} />}
                   color="#0070cd"
                   onLanded={() => setTipTier(true)}
                 />
               </>
             ) : (
               <div className="tip-reveal">
-                <div style={{ marginBottom: 6, display: 'flex', justifyContent: 'center' }}>
-                  <span style={{ display: 'inline-flex', padding: 10, borderRadius: '50%', background: 'rgba(232,93,117,0.12)', animation: 'tipIconPop 0.4s cubic-bezier(0.34,1.56,0.64,1) both' }}>
-                    <IconHeart size={18} color="#e85d75" />
-                  </span>
-                </div>
-                <div style={{ fontWeight: 800, fontSize: 13, marginBottom: 2 }}>Thank you! 🙏</div>
-                <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 10 }}>Scan below to tip via GCash</div>
+                <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 10 }}>Scan to send a tip via GCash 🙏</div>
                 <img
                   src="/gcash_qr.png"
                   alt="Scan to tip via GCash"
