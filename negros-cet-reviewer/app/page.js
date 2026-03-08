@@ -8,7 +8,7 @@ import { SCHOOL_LIST as SCHOOLS } from '../lib/schools'
 import {
   IconTarget, IconClock, IconBarChart, IconTrendingUp, IconLightbulb, IconSmartphone,
   IconCheck, IconAlertTriangle, IconAward, IconStar, IconFacebook, IconLinkedIn,
-  IconHeart, IconMessageSquare, IconSend,
+  IconMessageSquare, IconSend,
 } from '../components/Icons'
 
 const FEATURES = [
@@ -288,15 +288,13 @@ export default function HomePage() {
           {/* GCash Tip — single coin button */}
           <div className="card tip-card" style={{ textAlign: 'center', borderColor: tipTier ? 'rgba(0,112,205,0.5)' : 'rgba(0,112,205,0.25)', background: tipTier ? 'rgba(0,112,205,0.07)' : 'rgba(0,112,205,0.04)', transition: 'all 0.3s' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 8 }}>
-              <IconHeart size={15} color="#e85d75" />
               <span style={{ fontWeight: 800, fontSize: 15 }}>Support</span>
             </div>
 
             {!tipTier ? (
               <>
                 <p style={{ color: 'var(--muted)', fontSize: 12, marginBottom: 14, lineHeight: 1.5 }}>
-                  If this helped you, a small tip means a lot{' '}
-                  <IconHeart size={11} color="#e85d75" />
+                  If this helped you, a small tip means a lot.
                 </p>
                 <CoinButton
                   amount="Send a Tip"
@@ -307,7 +305,7 @@ export default function HomePage() {
               </>
             ) : (
               <div className="tip-reveal">
-                <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 10 }}>Scan to send a tip via GCash 🙏</div>
+                <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 10 }}>Scan to send a tip via GCash</div>
                 <img
                   src="/gcash_qr.png"
                   alt="Scan to tip via GCash"
