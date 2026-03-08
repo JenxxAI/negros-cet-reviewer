@@ -274,6 +274,10 @@ body {
   align-items: flex-start;
   justify-content: center;
 }
+.tip-card {
+  flex: 0 0 auto;
+  width: clamp(200px, 28vw, 250px);
+}
 
 /* School cards — hover works on both mouse and touch */
 .school-card {
@@ -340,7 +344,7 @@ body {
   .feedback-tip-row {
     flex-direction: column !important;
   }
-  .feedback-tip-row > .card:last-child {
+  .tip-card {
     width: 100% !important;
   }
 
@@ -507,7 +511,7 @@ kbd {
   font-family: inherit;
   font-size: 13px;
   font-weight: 600;
-  height: 2.6rem;
+  height: 3.2rem;
   outline: 0;
   overflow: visible;
   position: relative;
@@ -594,18 +598,24 @@ kbd {
   transform-origin: 50% 100%;
 }
 
-/* Inner label row */
+/* Inner label row — centered layout */
 .coin-btn-label {
   align-items: center;
   display: flex;
   height: 100%;
-  justify-content: space-between;
+  justify-content: center;
   opacity: 1;
   padding: 0 12px;
   position: relative;
   transition: opacity 100ms linear 500ms;
   width: 100%;
   z-index: 3;
+}
+.coin-btn-inner {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  text-align: left;
 }
 
 /* ── Coin wrapper — 18rem tall launch area ── */

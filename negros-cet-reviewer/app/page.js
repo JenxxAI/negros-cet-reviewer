@@ -286,7 +286,7 @@ export default function HomePage() {
           </div>
 
           {/* GCash Tip — single coin button */}
-          <div className="card tip-card" style={{ flex: '0 0 auto', width: 220, textAlign: 'center', borderColor: tipTier ? 'rgba(0,112,205,0.5)' : 'rgba(0,112,205,0.25)', background: tipTier ? 'rgba(0,112,205,0.07)' : 'rgba(0,112,205,0.04)', transition: 'all 0.3s' }}>
+          <div className="card tip-card" style={{ textAlign: 'center', borderColor: tipTier ? 'rgba(0,112,205,0.5)' : 'rgba(0,112,205,0.25)', background: tipTier ? 'rgba(0,112,205,0.07)' : 'rgba(0,112,205,0.04)', transition: 'all 0.3s' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 8 }}>
               <IconHeart size={15} color="#e85d75" />
               <span style={{ fontWeight: 800, fontSize: 15 }}>Support</span>
@@ -298,9 +298,9 @@ export default function HomePage() {
                   If this helped you, a small tip means a lot 😊
                 </p>
                 <CoinButton
-                  amount="Send a tip"
-                  label="via GCash"
-                  icon={<IconHeart size={13} color="#e85d75" />}
+                  amount="Send a Tip"
+                  label="via GCash 🇵🇭"
+                  icon={<IconHeart size={16} color="#e85d75" style={{ flexShrink: 0 }} />}
                   color="#0070cd"
                   onLanded={() => setTipTier(true)}
                 />

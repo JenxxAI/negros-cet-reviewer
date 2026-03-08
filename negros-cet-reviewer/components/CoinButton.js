@@ -90,9 +90,12 @@ export default function CoinButton({ amount, label, icon, color, onLanded }) {
       onClick={handleClick}
     >
       <span className="coin-btn-label">
-        <span style={{ fontWeight: 700, color, position: 'relative', zIndex: 3 }}>{amount}</span>
-        <span style={{ color: 'var(--muted)', fontSize: 11, display: 'flex', alignItems: 'center', gap: 4, position: 'relative', zIndex: 3 }}>
-          {icon} {label}
+        <span className="coin-btn-inner">
+          <span style={{ display: 'flex', alignItems: 'center', position: 'relative', zIndex: 3 }}>{icon}</span>
+          <span style={{ fontWeight: 700, color, position: 'relative', zIndex: 3, lineHeight: 1.2 }}>
+            {amount}
+            {label && <span style={{ display: 'block', fontWeight: 400, fontSize: 10, color: 'var(--muted)', marginTop: 1 }}>{label}</span>}
+          </span>
         </span>
       </span>
 
