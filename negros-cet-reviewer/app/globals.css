@@ -367,9 +367,28 @@ body {
   .flag-text { display: none !important; }
 }
 
+/* ─── Tip jar interactive card ─────────────────────────────── */
+@keyframes tipReveal {
+  from { opacity: 0; transform: translateY(10px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes tipIconPop {
+  from { transform: scale(0.4); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+@keyframes tierSlideIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.tip-reveal {
+  animation: tipReveal 0.35s cubic-bezier(0.22,1,0.36,1) both;
+}
+.tier-btn {
+  animation: tierSlideIn 0.28s ease both;
+}
+
 /* Social icon buttons in footer */
-.social-icon-btn {
-  display: inline-flex;
+.social-icon-btn {  display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 38px;

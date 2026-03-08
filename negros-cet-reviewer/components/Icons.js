@@ -384,6 +384,34 @@ export function IconSend({ size = 20, color = 'currentColor', strokeWidth = 1.75
   )
 }
 
+export function IconZap({ size = 20, color = 'currentColor', strokeWidth = 1.75 }) {
+  return (
+    <Svg size={size} color={color} strokeWidth={strokeWidth}>
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+    </Svg>
+  )
+}
+
+export function IconCoffee({ size = 20, color = 'currentColor', strokeWidth = 1.75 }) {
+  return (
+    <Svg size={size} color={color} strokeWidth={strokeWidth}>
+      <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
+      <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
+      <line x1="6" y1="1" x2="6" y2="4" />
+      <line x1="10" y1="1" x2="10" y2="4" />
+      <line x1="14" y1="1" x2="14" y2="4" />
+    </Svg>
+  )
+}
+
+export function IconSparkle({ size = 20, color = 'currentColor', strokeWidth = 1.75 }) {
+  return (
+    <Svg size={size} color={color} strokeWidth={strokeWidth}>
+      <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" />
+    </Svg>
+  )
+}
+
 export function IconEye({ size = 20, color = 'currentColor', strokeWidth = 1.75 }) {
   return (
     <Svg size={size} color={color} strokeWidth={strokeWidth}>

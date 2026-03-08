@@ -6,7 +6,7 @@ import { supabase } from '../lib/supabase'
 import {
   IconTarget, IconClock, IconBarChart, IconTrendingUp, IconLightbulb, IconSmartphone,
   IconCheck, IconAlertTriangle, IconAward, IconStar, IconFacebook, IconLinkedIn,
-  IconHeart, IconMessageSquare, IconSend,
+  IconHeart, IconMessageSquare, IconSend, IconZap, IconCoffee, IconSparkle,
 } from '../components/Icons'
 
 const SCHOOLS = [
@@ -41,6 +41,7 @@ export default function HomePage() {
   const [fbState, setFbState] = useState('idle') // idle | sending | sent | error
   const [questionCount, setQuestionCount] = useState(null)
   const [showSchools, setShowSchools] = useState(false)
+  const [tipTier, setTipTier] = useState(null)
 
   useEffect(() => {
     supabase.from('questions').select('id', { count: 'exact', head: true })
@@ -282,20 +283,74 @@ export default function HomePage() {
             )}
           </div>
 
-          {/* GCash Tip */}
-          <div className="card" style={{ flex: '0 0 auto', width: 220, textAlign: 'center', borderColor: 'rgba(0,112,205,0.25)', background: 'rgba(0,112,205,0.04)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 10 }}>
+          {/* GCash Tip — interactive tier picker */}
+          <div className="card tip-card" style={{ flex: '0 0 auto', width: 220, textAlign: 'center', borderColor: tipTier ? 'rgba(0,112,205,0.5)' : 'rgba(0,112,205,0.25)', background: tipTier ? 'rgba(0,112,205,0.07)' : 'rgba(0,112,205,0.04)', transition: 'all 0.3s' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 8 }}>
               <IconHeart size={15} color="#e85d75" />
               <span style={{ fontWeight: 800, fontSize: 15 }}>Support</span>
             </div>
-            <p style={{ color: 'var(--muted)', fontSize: 12, marginBottom: 12, lineHeight: 1.5 }}>
-              If it helped you study, a small tip is appreciated — totally optional!
-            </p>
-            <img
-              src="/gcash_qr.png"
-              alt="Scan to tip via GCash"
-              style={{ display: 'block', margin: '0 auto', borderRadius: 12, width: '100%', maxWidth: 160, boxShadow: '0 4px 16px rgba(0,0,0,0.15)' }}
-            />
+
+            {!tipTier ? (
+              <>
+                <p style={{ color: 'var(--muted)', fontSize: 12, marginBottom: 14, lineHeight: 1.5 }}>
+                  Pick a vibe and I'll show you where to send it 😄
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {[
+                    { amount: '₱10', icon: <IconZap size={14} color="#0070cd" />, label: 'Cool, I like it!', color: '#0070cd' },
+                    { amount: '₱20', icon: <IconCoffee size={14} color="#8b5cf6" />, label: 'It helped me!', color: '#8b5cf6' },
+                    { amount: '₱50', icon: <IconSparkle size={14} color="#c9a84c" />, label: "You're amazing!", color: '#c9a84c' },
+                  ].map((tier, i) => (
+                    <button
+                      key={tier.amount}
+                      onClick={() => setTipTier(tier)}
+                      className="tier-btn"
+                      style={{
+                        background: 'var(--card2)',
+                        border: '1px solid var(--border)',
+                        borderRadius: 10,
+                        padding: '9px 12px',
+                        cursor: 'pointer',
+                        fontSize: 13,
+                        color: 'var(--text)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        transition: 'all 0.18s',
+                        fontFamily: 'inherit',
+                        animationDelay: `${i * 80}ms`,
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = tier.color; e.currentTarget.style.background = tier.color + '18' }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'var(--card2)' }}
+                    >
+                      <span style={{ fontWeight: 700, color: tier.color }}>{tier.amount}</span>
+                      <span style={{ color: 'var(--muted)', fontSize: 11, display: 'flex', alignItems: 'center', gap: 4 }}>{tier.icon} {tier.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="tip-reveal">
+                <div style={{ marginBottom: 6, display: 'flex', justifyContent: 'center' }}>
+                  <span style={{ display: 'inline-flex', padding: 10, borderRadius: '50%', background: (tipTier?.color || '#0070cd') + '18', animation: 'tipIconPop 0.4s cubic-bezier(0.34,1.56,0.64,1) both' }}>
+                    {tipTier?.icon}
+                  </span>
+                </div>
+                <div style={{ fontWeight: 800, fontSize: 13, marginBottom: 2 }}>{tipTier.label}</div>
+                <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 10 }}>Scan below to send {tipTier.amount}</div>
+                <img
+                  src="/gcash_qr.png"
+                  alt="Scan to tip via GCash"
+                  style={{ display: 'block', margin: '0 auto 10px', borderRadius: 12, width: '100%', maxWidth: 160, boxShadow: '0 4px 16px rgba(0,0,0,0.18)' }}
+                />
+                <button
+                  onClick={() => setTipTier(null)}
+                  style={{ background: 'transparent', border: '1px solid var(--border)', borderRadius: 8, padding: '5px 14px', color: 'var(--muted)', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit' }}
+                >
+                  ← change amount
+                </button>
+              </div>
+            )}
           </div>
 
         </div>
