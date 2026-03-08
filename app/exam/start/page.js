@@ -533,9 +533,8 @@ function ExamRoom() {
                 <button className="btn btn-outline" onClick={handleFinish} style={{ flex: 1 }}>Finish Early</button>
               )}
               {(showAnswer || !answered) && (
-                <button className="btn btn-primary" onClick={answered ? handleNext : handleFinish}
-                  style={{ flex: 1 }} disabled={!showAnswer && answered === undefined}>
-                  {current + 1 >= questions.length ? 'See Results →' : 'Next Question →'}
+                <button className="btn btn-primary" onClick={handleNext} style={{ flex: 1 }}>
+                  {current + 1 >= questions.length ? 'See Results →' : 'Next →'}
                 </button>
               )}
             </>
