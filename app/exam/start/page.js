@@ -530,24 +530,44 @@ function ExamRoom() {
 
         {/* Question dot strip — scrollable on mobile */}
         <div className="q-dot-strip" role="navigation" aria-label="Question navigation">
-          {questions.map((_, i) => (
-            <button key={i}
-              aria-label={`Go to question ${i + 1}${flagged[i] ? ' (flagged)' : ''}${answers[i] !== undefined ? ' (answered)' : ''}`}
-              aria-current={i === current ? 'true' : undefined}
-              className="q-dot"
-              style={{
-                background: i === current ? 'var(--gold)' : answers[i] !== undefined ? 'rgba(63,185,80,0.3)' : 'var(--card)',
-                color: i === current ? '#0d1117' : answers[i] !== undefined ? '#3fb950' : 'var(--muted)',
-                border: `1px solid ${i === current ? 'var(--gold)' : flagged[i] ? 'var(--gold)' : 'var(--border)'}`,
-                boxShadow: flagged[i] ? '0 0 0 2px rgba(201,168,76,0.35)' : 'none',
-              }}
-              onClick={() => {
-                if (mode === 'exam') { setCurrent(i) }
-                else if (!showAnswer) { setCurrent(i); setShowAnswer(answers[i] !== undefined) }
-              }}>
-              {i + 1}
-            </button>
-          ))}
+          {questions.map((_, i) => {
+            const isCurrent = i === current
+            const isAnswered = answers[i] !== undefined
+            const isFlagged = flagged[i]
+            return (
+              <button key={i}
+                aria-label={`Go to question ${i + 1}${isFlagged ? ' (flagged)' : ''}${isAnswered ? ' (answered)' : ''}`}
+                aria-current={isCurrent ? 'true' : undefined}
+                className="q-dot"
+                style={{
+                  background: isCurrent
+                    ? 'linear-gradient(135deg, var(--gold), #e8c97a)'
+                    : isAnswered
+                    ? 'rgba(63,185,80,0.15)'
+                    : 'var(--card2)',
+                  color: isCurrent ? '#0d1117' : isAnswered ? '#3fb950' : 'var(--muted)',
+                  border: `1.5px solid ${isCurrent ? 'var(--gold)' : isFlagged ? 'var(--gold)' : isAnswered ? 'rgba(63,185,80,0.4)' : 'var(--border)'}`,
+                  boxShadow: isCurrent ? '0 2px 8px rgba(201,168,76,0.35)' : isFlagged ? '0 0 0 2px rgba(201,168,76,0.25)' : 'none',
+                  fontWeight: isCurrent ? 800 : isAnswered ? 700 : 500,
+                  transform: isCurrent ? 'scale(1.12)' : 'scale(1)',
+                  transition: 'all 0.18s cubic-bezier(0.22,1,0.36,1)',
+                  borderRadius: isCurrent ? 10 : 8,
+                  fontSize: isCurrent ? 13 : 12,
+                  position: 'relative',
+                }}
+                onClick={() => {
+                  if (mode === 'exam') { setCurrent(i) }
+                  else if (!showAnswer) { setCurrent(i); setShowAnswer(answers[i] !== undefined) }
+                }}>
+                {isAnswered && !isCurrent
+                  ? <span style={{ fontSize: 11, lineHeight: 1 }}>✓</span>
+                  : i + 1}
+                {isFlagged && (
+                  <span style={{ position: 'absolute', top: -3, right: -3, width: 7, height: 7, borderRadius: '50%', background: 'var(--gold)', border: '1.5px solid var(--dark)' }} />
+                )}
+              </button>
+            )
+          })}
         </div>
 
         {/* Navigation — sticky on mobile */}

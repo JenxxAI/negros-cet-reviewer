@@ -375,6 +375,38 @@ body {
   .flag-text { display: none !important; }
 }
 
+/* ─── Question dot strip ────────────────────────────────────── */
+.q-dot-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.q-dot {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+  border: none;
+  line-height: 1;
+  position: relative;
+  flex-shrink: 0;
+}
+.q-dot:hover {
+  filter: brightness(1.15);
+  transform: translateY(-1px) scale(1.05);
+}
+.q-dot:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
 /* ─── Tip jar interactive card ─────────────────────────────── */
 @keyframes tipReveal {
   from { opacity: 0; transform: translateY(10px) scale(0.97); }
