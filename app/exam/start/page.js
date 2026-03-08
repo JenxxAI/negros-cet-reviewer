@@ -7,7 +7,7 @@ import SAMPLE_QUESTIONS from '../../../lib/sampleQuestions'
 import {
   IconClock, IconAlertTriangle, IconAward, IconBookOpen, IconCheck, IconX,
   IconClipboard, IconSquare, IconLightbulb, IconRefresh, IconTrendingUp, IconFlag,
-  IconEye, IconEyeOff, IconShare, IconAlertOctagon, IconBarChart, IconChevronLeft,
+  IconEye, IconEyeOff, IconShare, IconAlertOctagon, IconBarChart, IconChevronLeft, IconArrowRight,
 } from '../../../components/Icons'
 
 // ─── Supabase question fetcher ─────────────────────────────────────────────
@@ -524,20 +524,20 @@ function ExamRoom() {
         {/* Navigation — sticky on mobile */}
         <div className="nav-actions">
           {mode === 'exam' ? (
-            <button className="btn btn-primary" onClick={handleNext} style={{ width: '100%' }}>
-              {current + 1 >= questions.length ? 'Submit All →' : 'Next →'}
+            <button className="btn btn-primary" onClick={handleNext} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+              {current + 1 >= questions.length ? 'Submit All' : 'Next'} <IconArrowRight size={15} />
             </button>
           ) : (
-            <>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 12, width: '100%' }}>
               {!answered && !showAnswer && (
                 <button className="btn btn-outline" onClick={handleFinish} style={{ flex: 1 }}>Finish Early</button>
               )}
               {(showAnswer || !answered) && (
-                <button className="btn btn-primary" onClick={handleNext} style={{ flex: 1 }}>
-                  {current + 1 >= questions.length ? 'See Results →' : 'Next →'}
+                <button className="btn btn-primary" onClick={handleNext} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                  {current + 1 >= questions.length ? 'See Results' : 'Next'} <IconArrowRight size={15} />
                 </button>
               )}
-            </>
+            </div>
           )}
         </div>
 
