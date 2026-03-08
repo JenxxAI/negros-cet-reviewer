@@ -1,14 +1,55 @@
 import { createClient } from '@supabase/supabase-js'
 
+// IP-based rate limiter: max 10 failed auth attempts per 15 minutes per IP.
+// Note: in-memory — resets on instance restart (sufficient for deterring brute force).
+const failedAttempts = new Map() // ip -> { count, windowStart }
+const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000 // 15 minutes
+const RATE_LIMIT_MAX_FAILURES = 10
+
+function isRateLimited(ip) {
+  const now = Date.now()
+  const entry = failedAttempts.get(ip)
+  if (!entry || now - entry.windowStart > RATE_LIMIT_WINDOW_MS) {
+    return false
+  }
+  return entry.count >= RATE_LIMIT_MAX_FAILURES
+}
+
+function recordFailure(ip) {
+  const now = Date.now()
+  const entry = failedAttempts.get(ip)
+  if (!entry || now - entry.windowStart > RATE_LIMIT_WINDOW_MS) {
+    failedAttempts.set(ip, { count: 1, windowStart: now })
+  } else {
+    entry.count++
+  }
+}
+
+function clearFailures(ip) {
+  failedAttempts.delete(ip)
+}
+
 export async function POST(request) {
+  // Extract caller IP (X-Forwarded-For set by Vercel/proxy)
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'unknown'
+
+  // Rate limit check before password validation to prevent brute force
+  if (isRateLimited(ip)) {
+    return Response.json({ error: 'Too many failed attempts. Try again later.' }, { status: 429 })
+  }
+
   // Password check — ADMIN_PASSWORD is a server-only env var (never NEXT_PUBLIC_)
   const password = request.headers.get('x-admin-password')
   if (!password || password !== process.env.ADMIN_PASSWORD) {
+    recordFailure(ip)
     return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
+  // Successful auth — clear failure counter for this IP
+  clearFailures(ip)
+
   if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    return Response.json({ error: 'SUPABASE_SERVICE_ROLE_KEY not configured on this server' }, { status: 500 })
+    return Response.json({ error: 'Server configuration error' }, { status: 500 })
   }
 
   // Service role client bypasses RLS — only used server-side
