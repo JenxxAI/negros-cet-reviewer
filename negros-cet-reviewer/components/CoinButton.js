@@ -7,7 +7,7 @@ import { useRef } from 'react'
  *
  * Adapted from the vanilla JS coin-flip pen for React + Next.js.
  */
-export default function CoinButton({ amount, label, icon, color, onLanded }) {
+export default function CoinButton({ amount, label, color, onLanded }) {
   const btnRef  = useRef(null)
   const coinRef = useRef(null)
   const state   = useRef({ clicked: false, moveLoopCount: 0, maxMoveLoopCount: 90, maxFlipAngle: 0, sideRotationCount: 0 })
@@ -91,11 +91,8 @@ export default function CoinButton({ amount, label, icon, color, onLanded }) {
     >
       <span className="coin-btn-label">
         <span className="coin-btn-inner">
-          <span style={{ display: 'flex', alignItems: 'center', position: 'relative', zIndex: 3 }}>{icon}</span>
-          <span style={{ fontWeight: 700, color, position: 'relative', zIndex: 3, lineHeight: 1.2 }}>
-            {amount}
-            {label && <span style={{ display: 'block', fontWeight: 400, fontSize: 10, color: 'var(--muted)', marginTop: 1 }}>{label}</span>}
-          </span>
+          <span className="coin-btn-title" style={{ color, position: 'relative', zIndex: 3 }}>{amount}</span>
+          {label && <span className="coin-btn-sub" style={{ position: 'relative', zIndex: 3 }}>{label}</span>}
         </span>
       </span>
 

@@ -295,11 +295,12 @@ export default function HomePage() {
             {!tipTier ? (
               <>
                 <p style={{ color: 'var(--muted)', fontSize: 12, marginBottom: 14, lineHeight: 1.5 }}>
-                  If this helped you, a small tip means a lot 😊
+                  If this helped you, a small tip means a lot{' '}
+                  <IconHeart size={11} color="#e85d75" />
                 </p>
                 <CoinButton
                   amount="Send a Tip"
-                  label="via GCash 🇵🇭"
+                  label="via GCash"
                   color="#0070cd"
                   onLanded={() => setTipTier(true)}
                 />
