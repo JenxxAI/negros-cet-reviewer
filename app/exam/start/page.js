@@ -228,6 +228,7 @@ function ExamRoom() {
 
   const handleAnswer = (i) => {
     if (mode === 'practice' && showAnswer) return
+    if (mode === 'exam' && answers[current] !== undefined) return
     setAnswers(a => ({ ...a, [current]: i }))
     if (mode === 'practice') setShowAnswer(true)
   }
@@ -505,7 +506,7 @@ function ExamRoom() {
                 key={i}
                 className={cls}
                 onClick={() => handleAnswer(i)}
-                disabled={mode === 'practice' && showAnswer}
+                disabled={(mode === 'practice' && showAnswer) || (mode === 'exam' && answers[current] !== undefined)}
                 role="radio"
                 aria-checked={answers[current] === i}
                 aria-label={`Choice ${['A','B','C','D'][i]}: ${choice}`}
