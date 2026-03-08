@@ -529,14 +529,14 @@ function ExamRoom() {
             </button>
           ) : (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 12, width: '100%' }}>
-              {!answered && !showAnswer && (
-                <button className="btn btn-outline" onClick={handleFinish} style={{ flex: 1 }}>Finish Early</button>
-              )}
-              {(showAnswer || !answered) && (
-                <button className="btn btn-primary" onClick={handleNext} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-                  {current + 1 >= questions.length ? 'See Results' : 'Next'} <IconArrowRight size={15} />
-                </button>
-              )}
+              <button className="btn btn-outline" onClick={handleFinish}
+                style={{ flex: 1, visibility: (answered || showAnswer) ? 'hidden' : 'visible', pointerEvents: (answered || showAnswer) ? 'none' : 'auto' }}>
+                Finish Early
+              </button>
+              <button className="btn btn-primary" onClick={handleNext}
+                style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                {current + 1 >= questions.length ? 'See Results' : 'Next'} <IconArrowRight size={15} />
+              </button>
             </div>
           )}
         </div>
