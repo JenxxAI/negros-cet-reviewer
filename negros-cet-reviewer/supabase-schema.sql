@@ -200,6 +200,16 @@ as $$
   limit p_count;
 $$;
 
+-- Add unique constraint on subjects(slug, school_id) if not already present
+do $$ begin
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'subjects_slug_school_id_key' and conrelid = 'subjects'::regclass
+  ) then
+    alter table subjects add constraint subjects_slug_school_id_key unique (slug, school_id);
+  end if;
+end $$;
+
 -- Feedback table (user comments and suggestions)
 create table if not exists feedback (
   id uuid primary key default gen_random_uuid(),
