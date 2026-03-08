@@ -552,9 +552,18 @@ function ExamRoom() {
         {/* Navigation — sticky on mobile */}
         <div className="nav-actions">
           {mode === 'exam' ? (
-            <button className="btn btn-primary" onClick={handleNext} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-              {current + 1 >= questions.length ? 'Submit All' : 'Next'} <IconArrowRight size={15} />
-            </button>
+            <div style={{ display: 'flex', gap: 10, width: '100%' }}>
+              <button className="btn btn-outline" onClick={() => setCurrent(c => c - 1)}
+                disabled={current === 0}
+                style={{ flex: 1, opacity: current === 0 ? 0.3 : 1 }}
+                aria-label="Previous question">
+                ← Prev
+              </button>
+              <button className="btn btn-primary" onClick={handleNext}
+                style={{ flex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                {current + 1 >= questions.length ? 'Submit All' : 'Next'} <IconArrowRight size={15} />
+              </button>
+            </div>
           ) : (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 12, width: '100%' }}>
               <button className="btn btn-outline" onClick={handleFinish}
