@@ -67,6 +67,8 @@ function ExamRoom() {
   const count = (isNaN(countRaw) || countRaw < 1) ? 10 : Math.min(countRaw, 50)
   const mode = searchParams.get('mode') || 'practice'
 
+  const sessionKey = `negrev_session_${school}_${subject}_${difficulty}_${count}_${mode}`
+
   const [questions, setQuestions] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
@@ -80,9 +82,33 @@ function ExamRoom() {
   const [copied, setCopied] = useState(false)
   const [reported, setReported] = useState({})
 
-  // Load questions: try Supabase first, fall back to sample questions
+  // Persist exam state to sessionStorage on every change
+  useEffect(() => {
+    if (loading || finished || questions.length === 0) return
+    try {
+      sessionStorage.setItem(sessionKey, JSON.stringify({ questions, current, answers, timeLeft, flagged }))
+    } catch {}
+  }, [questions, current, answers, timeLeft, flagged]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Load questions: restore from sessionStorage if available, else fetch fresh
   useEffect(() => {
     async function load() {
+      try {
+        const saved = sessionStorage.getItem(sessionKey)
+        if (saved) {
+          const s = JSON.parse(saved)
+          if (s.questions?.length > 0) {
+            setQuestions(s.questions)
+            setCurrent(s.current ?? 0)
+            setAnswers(s.answers ?? {})
+            setTimeLeft(s.timeLeft ?? s.questions.length * 60)
+            setFlagged(s.flagged ?? {})
+            setLoading(false)
+            return
+          }
+        }
+      } catch {}
+
       const dbQuestions = await fetchQuestionsFromDB(school, subject, difficulty, count)
       const finalQuestions = (dbQuestions && dbQuestions.length > 0)
         ? dbQuestions
@@ -108,6 +134,8 @@ function ExamRoom() {
   // Save session to Supabase when exam finishes
   useEffect(() => {
     if (!finished || questions.length === 0) return
+    // Clear the saved session — exam is done
+    try { sessionStorage.removeItem(sessionKey) } catch {}
     const score = calculateScore(questions, answers)
     const percent = Math.round((score / questions.length) * 100)
 
@@ -378,7 +406,7 @@ function ExamRoom() {
 
         {/* Actions */}
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 24 }}>
-          <button className="btn btn-primary" onClick={() => { setCurrent(0); setAnswers({}); setShowAnswer(false); setTimeLeft(questions.length * 60); setFinished(false); setFlagged({}); setFlaggedOnly(false); setCopied(false); setReported({}) }} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+          <button className="btn btn-primary" onClick={() => { try { sessionStorage.removeItem(sessionKey) } catch {} setCurrent(0); setAnswers({}); setShowAnswer(false); setTimeLeft(questions.length * 60); setFinished(false); setFlagged({}); setFlaggedOnly(false); setCopied(false); setReported({}) }} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
             <IconRefresh size={15} /> Retake Exam
           </button>
           <button className="btn btn-outline" onClick={() => router.push(`/exam?school=${school}`)} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
