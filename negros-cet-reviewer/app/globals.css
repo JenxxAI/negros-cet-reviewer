@@ -289,7 +289,7 @@ body {
 }
 
 /* ─── Responsive helpers ────────────────────────────────────── */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .hero-ctas {
     flex-direction: column;
   }
@@ -340,11 +340,15 @@ body {
   /* Hero badge: larger on mobile */
   .hero-badge { font-size: 11px !important; letter-spacing: 0 !important; white-space: normal !important; line-height: 1.5 !important; }
 
-  /* Feedback + Tip: stack vertically */
+  /* Feedback + Tip: stack vertically, tip always below */
   .feedback-tip-row {
     flex-direction: column !important;
   }
+  .feedback-tip-row > .card:not(.tip-card) {
+    order: 0;
+  }
   .tip-card {
+    order: 1;
     width: 100% !important;
   }
 
