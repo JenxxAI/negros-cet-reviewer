@@ -37,6 +37,7 @@ export default function HomePage() {
   const [questionCount, setQuestionCount] = useState(null)
   const [showSchools, setShowSchools] = useState(false)
   const [tipTier, setTipTier] = useState(null)
+  const [tipClosing, setTipClosing] = useState(false)
 
   useEffect(() => {
     supabase.from('questions').select('id', { count: 'exact', head: true })
@@ -306,7 +307,7 @@ export default function HomePage() {
                 />
               </>
             ) : (
-              <div className="tip-reveal">
+              <div className={`tip-reveal${tipClosing ? ' tip-closing' : ''}`}>
                 <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 10 }}>Scan to send a tip via GCash</div>
                 <img
                   src="/gcash_qr.png"
@@ -314,10 +315,13 @@ export default function HomePage() {
                   style={{ display: 'block', margin: '0 auto 10px', borderRadius: 12, width: '100%', maxWidth: 160, boxShadow: '0 4px 16px rgba(0,0,0,0.18)' }}
                 />
                 <button
-                  onClick={() => setTipTier(null)}
-                  style={{ background: 'transparent', border: '1px solid var(--border)', borderRadius: 8, padding: '5px 14px', color: 'var(--muted)', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit' }}
+                  className="tip-hide-btn"
+                  onClick={() => {
+                    setTipClosing(true)
+                    setTimeout(() => { setTipTier(null); setTipClosing(false) }, 300)
+                  }}
                 >
-                  ← hide
+                  <span className="tip-hide-arrow">←</span> hide
                 </button>
               </div>
             )}

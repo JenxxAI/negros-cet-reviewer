@@ -426,6 +426,46 @@ body {
 .tier-btn {
   animation: tierSlideIn 0.28s ease both;
 }
+@keyframes tipDismiss {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to   { opacity: 0; transform: translateY(8px) scale(0.97); }
+}
+.tip-reveal.tip-closing {
+  animation: tipDismiss 0.28s cubic-bezier(0.22,1,0.36,1) both;
+}
+.tip-hide-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 5px 14px 5px 10px;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 11px;
+  font-family: inherit;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  transition: all 0.18s cubic-bezier(0.22,1,0.36,1);
+  margin-top: 2px;
+}
+.tip-hide-btn:hover {
+  border-color: var(--text);
+  color: var(--text);
+  background: var(--card2);
+  transform: translateY(-1px);
+}
+.tip-hide-btn:active {
+  transform: scale(0.95) translateY(0);
+}
+.tip-hide-arrow {
+  display: inline-block;
+  transition: transform 0.18s ease;
+}
+.tip-hide-btn:hover .tip-hide-arrow {
+  transform: translateX(-3px);
+}
 
 /* Social icon buttons in footer */
 .social-icon-btn {  display: inline-flex;
